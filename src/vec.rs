@@ -1,7 +1,7 @@
 extern crate num_traits;
 
-use std::{ops, fmt};
-use num_traits::{NumAssign, Num, NumOps, NumCast, NumAssignOps};
+use std::fmt;
+use num_traits::{Num, NumOps, NumCast};
 use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign};
 use std::fmt::{Display, Formatter};
 
@@ -16,7 +16,7 @@ impl<T: PartialEq> PartialEq for Vec3<T> {
 }
 impl<T: Eq> Eq for Vec3<T> {}
 
-impl<T: Add> Add for Vec3<T> {
+impl<T: Add> Add<Vec3<T>> for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn add(self, rhs: Self) -> Self::Output {
         Vec3(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
@@ -42,6 +42,18 @@ impl<T: Div> Div for Vec3<T> {
 }
 
 /// element-wise operation between vector and primitives
+impl<T: Add + Copy> Add<T> for Vec3<T> {
+    type Output = Vec3<T::Output>;
+    fn add(self, rhs: T) -> Self::Output {
+        Vec3(self.0 + rhs, self.1 + rhs, self.2 + rhs)
+    }
+}
+impl<T: Sub + Copy> Sub<T> for Vec3<T> {
+    type Output = Vec3<T::Output>;
+    fn sub(self, rhs: T) -> Self::Output {
+        Vec3(self.0 - rhs, self.1 - rhs, self.2 - rhs)
+    }
+}
 impl<T: Mul + Copy> Mul<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
 
@@ -120,7 +132,7 @@ impl<T: NumOps + NumCast + Copy> Vec3<T> {
 
 /// various products
 impl<T: Num + Copy> Vec3<T> {
-    pub fn dot(self, rhs: &Self) -> T {
+    pub fn dot(self, rhs: Self) -> T {
         self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
     }
 

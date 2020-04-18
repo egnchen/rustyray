@@ -8,7 +8,7 @@ use std::io::{BufWriter, BufReader};
 use crate::vec::Vec3;
 
 /// Color in RGB
-pub type Color = Vec3<f32>;
+pub type Color = Vec3<f64>;
 pub type Color24 = Vec3<u8>;
 
 pub struct Picture {
