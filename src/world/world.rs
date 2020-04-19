@@ -3,7 +3,7 @@ use std::cell::RefCell;
 
 use super::Hittable;
 use crate::ray::Ray;
-use crate::shape::HitRecord;
+use crate::world::HitRecord;
 
 pub struct World {
     hittable_list: Vec<Rc<RefCell<dyn Hittable>>>,

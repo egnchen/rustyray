@@ -1,4 +1,5 @@
 pub mod ppm;
 pub mod vec;
 pub mod ray;
-pub mod shape;
+pub mod world;
+pub mod render;

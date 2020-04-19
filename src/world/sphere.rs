@@ -1,7 +1,7 @@
 use crate::vec::Vec3;
-use crate::shape::{HitRecord, Hittable};
+use crate::world::{HitRecord, Hittable};
 use crate::ray::Ray;
-use crate::shape::Face;
+use crate::world::Face;
 
 pub struct Sphere {
     pub center: Vec3<f64>,

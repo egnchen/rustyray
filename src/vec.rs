@@ -2,7 +2,7 @@ extern crate num_traits;
 
 use std::fmt;
 use num_traits::{Num, NumOps, NumCast};
-use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign};
+use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
@@ -102,6 +102,13 @@ impl<T: MulAssign + Copy> MulAssign<T> for Vec3<T> {
     }
 }
 
+impl<T: DivAssign + Copy> DivAssign<T> for Vec3<T> {
+    fn div_assign(&mut self, rhs: T) {
+        self.0 /= rhs;
+        self.1 /= rhs;
+        self.2 /= rhs;
+    }
+}
 
 impl<T: Display> Display for Vec3<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result<> {
