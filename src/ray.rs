@@ -1,5 +1,6 @@
 use super::vec::Vec3;
 
+#[derive(Clone, Copy)]
 pub struct Ray {
     orig: Vec3<f64>,
     dir: Vec3<f64>,

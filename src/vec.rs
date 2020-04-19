@@ -7,6 +7,7 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 #[derive(Copy, Clone)]
+#[derive(Default)]
 pub struct Vec3<T>(pub T, pub T, pub T);
 
 impl<T: PartialEq> PartialEq for Vec3<T> {
@@ -119,11 +120,17 @@ impl<T: NumCast> Vec3<T> {
     }
 }
 
+impl<T: Num> Vec3<T> {
+    pub fn one() -> Vec3<T> { Vec3(T::one(), T::one(), T::one()) }
+}
+
 impl<T: NumOps + NumCast + Copy> Vec3<T> {
-    pub fn length2(&self) -> T {
+    pub fn length_square(&self) -> T {
         self.0 * self.0 + self.1 * self.1 + self.2 * self.2
     }
-    pub fn length(&self) -> f64 { self.length2().to_f64().unwrap().sqrt() }
+    pub fn length(&self) -> f64 {
+        self.length_square().to_f64().unwrap().sqrt()
+    }
     pub fn unit_vector(&self) -> Vec3<f64> { self.to_f64() / self.length() }
     pub fn x(&self) -> T { self.0 }
     pub fn y(&self) -> T { self.1 }
