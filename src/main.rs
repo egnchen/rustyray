@@ -12,13 +12,13 @@ use ray_tracer::render::filter::Filter;
 
 /// return a vector pointing to a random direction
 /// within a unit sphere
+/// The distribution used here is Lambertian distribution
+/// which has a distribution of cos(\phi)
 fn rand_in_unit_sphere(rng: &mut impl Rng) -> Vec3<f64> {
-    loop {
-        let ret = Vec3::random(-1.0, 1.0, rng);
-        if ret.length_square() <= 1.0 {
-            return ret;
-        }
-    }
+    let a: f64 = rng.gen_range(0.0, 2.0 * std::f64::consts::PI);
+    let z: f64 = rng.gen_range(-1.0, 1.0);
+    let r: f64 = (1.0 - z * z).sqrt();
+    Vec3(r * a.cos(), r * a.sin(), z)
 }
 
 fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
