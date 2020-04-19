@@ -5,16 +5,38 @@ use ray_tracer::world::{Sphere, World, Hittable};
 use std::rc::Rc;
 use std::cell::RefCell;
 use num_traits::float::FloatCore;
-use ray_tracer::render::Camera;
+use ray_tracer::render::{Camera, GammaFilter};
 use rand::Rng;
+use indicatif::ProgressBar;
+use ray_tracer::render::filter::Filter;
 
-fn ray_color(r: &Ray, w: &World) -> Color {
+/// return a vector pointing to a random direction
+/// within a unit sphere
+fn rand_in_unit_sphere(rng: &mut impl Rng) -> Vec3<f64> {
+    loop {
+        let ret = Vec3::random(-1.0, 1.0, rng);
+        if ret.length_square() <= 1.0 {
+            return ret;
+        }
+    }
+}
+
+fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
     const LOW: Color = Color{0: 1.0, 1: 1.0, 2: 1.0};
     const HIGH: Color = Color{0: 0.5, 1: 0.7, 2: 1.0};
-    if let Some(t) = w.hit(&r, 0.0, f64::infinity()) {
-        let norm = t.normal;
-        (norm.unit_vector() + 1.0) * 0.5
+    if depth == 0 {
+        return Color::zero();
+    }
+    if let Some(t) = w.hit(&r, 0.001, f64::infinity()) {
+        // it hit something
+        // assume diffuse material here
+        let new_ray = Ray {
+            orig: t.p,
+            dir: t.normal + rand_in_unit_sphere(rng)
+        };
+        ray_color(&new_ray, w, rng, depth - 1) * 0.5
     } else {
+        // sky box
         let unit = r.direction().unit_vector();
         let t = 0.5 * (unit.y() + 1.0) as f64;
         LOW * (1.0 - t) + HIGH * t
@@ -46,8 +68,10 @@ fn main() {
     world.add_hittable(&sphere1);
     world.add_hittable(&sphere2);
 
-    let sample_per_pixel = 20;
+    let sample_per_pixel = 128;
     let mut rng = rand::thread_rng();
+
+    let pb = ProgressBar::new(height as u64);
 
     // neg-y axis is i, pos-x axis is j
     for i in 0..height {
@@ -56,12 +80,18 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world);
+                c += ray_color(&camera.get_ray(u, v), &world, &mut rng,64);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;
         }
+        pb.inc(1);
     }
 
+    pb.finish();
+    println!("Undergoing gamma correction...");
+    let filter = GammaFilter { gamma: 2.0 };
+    filter.filter(&mut p);
+    println!("Writing to out.ppm...");
     p.write_to_file("out.ppm").expect("Failed to write file.");
 }

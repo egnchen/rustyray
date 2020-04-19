@@ -30,7 +30,7 @@ impl Hittable for Sphere {
                     f: Face::calc(&p, &r),
                     t,
                     p,
-                    normal: p - self.center,
+                    normal: (p - self.center).unit_vector(),
                 });
             }
             let t = (-half_b + discriminant.sqrt()) / a;
@@ -40,7 +40,7 @@ impl Hittable for Sphere {
                     f: Face::calc(&p, &r),
                     p,
                     t,
-                    normal: p - self.center,
+                    normal: (p - self.center).unit_vector(),
                 });
             }
         }
