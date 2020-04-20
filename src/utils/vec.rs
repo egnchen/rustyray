@@ -1,10 +1,10 @@
 extern crate num_traits;
 
 use std::fmt;
-use num_traits::{Num, NumOps, NumCast};
-use std::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
 use std::fmt::{Display, Formatter};
-use rand::Rng;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+
+use num_traits::{Num, NumCast, NumOps};
 use rand::distributions::uniform::SampleUniform;
 
 #[derive(Debug)]
@@ -17,6 +17,7 @@ impl<T: PartialEq> PartialEq for Vec3<T> {
         self.0 == other.0 && self.1 == other.1 && self.2 == other.2
     }
 }
+
 impl<T: Eq> Eq for Vec3<T> {}
 
 impl<T: Add> Add<Vec3<T>> for Vec3<T> {
@@ -25,18 +26,21 @@ impl<T: Add> Add<Vec3<T>> for Vec3<T> {
         Vec3(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
     }
 }
+
 impl<T: Sub> Sub for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn sub(self, rhs: Self) -> Self::Output {
         Vec3(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
     }
 }
+
 impl<T: Mul> Mul for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn mul(self, rhs: Self) -> Self::Output {
         Vec3(self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2)
     }
 }
+
 impl<T: Div> Div for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn div(self, rhs: Self) -> Self::Output {
@@ -51,12 +55,14 @@ impl<T: Add + Copy> Add<T> for Vec3<T> {
         Vec3(self.0 + rhs, self.1 + rhs, self.2 + rhs)
     }
 }
+
 impl<T: Sub + Copy> Sub<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn sub(self, rhs: T) -> Self::Output {
         Vec3(self.0 - rhs, self.1 - rhs, self.2 - rhs)
     }
 }
+
 impl<T: Mul + Copy> Mul<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
 
@@ -64,6 +70,7 @@ impl<T: Mul + Copy> Mul<T> for Vec3<T> {
         Vec3(self.0 * rhs, self.1 * rhs, self.2 * rhs)
     }
 }
+
 impl<T: Div + Copy> Div<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
 
@@ -121,7 +128,7 @@ impl<T: Display> Display for Vec3<T> {
 /// casting to f64
 impl<T: NumCast> Vec3<T> {
     pub fn to_f64(&self) -> Vec3<f64> {
-        Vec3 (
+        Vec3(
             self.0.to_f64().unwrap(),
             self.1.to_f64().unwrap(),
             self.2.to_f64().unwrap(),
@@ -165,7 +172,7 @@ impl<T: Num + Copy> Vec3<T> {
         Vec3(
             self.1 * rhs.2 - self.2 * rhs.1,
             T::zero() - (self.0 * rhs.2 - self.2 * rhs.0),
-            self.0 * rhs.1 - self.1 * rhs.0
+            self.0 * rhs.1 - self.1 * rhs.0,
         )
     }
 }

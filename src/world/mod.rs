@@ -1,10 +1,10 @@
-mod sphere;
-mod world;
+pub mod sphere;
+pub mod world;
 
 pub use sphere::Sphere;
 pub use world::World;
-use crate::ray::Ray;
-use crate::vec::Vec3;
+
+use crate::utils::{Ray, Vec3};
 
 #[derive(Debug)]
 pub enum Face {

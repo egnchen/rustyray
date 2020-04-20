@@ -1,5 +1,4 @@
-use crate::vec::Vec3;
-use crate::ray::Ray;
+use crate::utils::{Ray, Vec3};
 
 pub struct Camera {
     pub start_corner: Vec3<f64>,

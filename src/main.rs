@@ -1,14 +1,17 @@
-use ray_tracer::ppm::{Picture, Color};
-use ray_tracer::vec::Vec3;
-use ray_tracer::ray::Ray;
-use ray_tracer::world::{Sphere, World, Hittable};
-use std::rc::Rc;
 use std::cell::RefCell;
-use num_traits::float::FloatCore;
-use ray_tracer::render::{Camera, GammaFilter};
-use rand::Rng;
+use std::rc::Rc;
+use std::time;
+
 use indicatif::ProgressBar;
+use num_traits::float::FloatCore;
+use rand::Rng;
+
+use ray_tracer::io::Picture;
+use ray_tracer::io::ppm::Color;
+use ray_tracer::render::{Camera, GammaFilter};
 use ray_tracer::render::filter::Filter;
+use ray_tracer::utils::{Ray, Vec3};
+use ray_tracer::world::{Hittable, Sphere, World};
 
 /// return a vector pointing to a random direction
 /// within a unit sphere
@@ -22,8 +25,8 @@ fn rand_in_unit_sphere(rng: &mut impl Rng) -> Vec3<f64> {
 }
 
 fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
-    const LOW: Color = Color{0: 1.0, 1: 1.0, 2: 1.0};
-    const HIGH: Color = Color{0: 0.5, 1: 0.7, 2: 1.0};
+    const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
+    const HIGH: Color = Color { 0: 0.5, 1: 0.7, 2: 1.0 };
     if depth == 0 {
         return Color::zero();
     }
@@ -32,7 +35,7 @@ fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
         // assume diffuse material here
         let new_ray = Ray {
             orig: t.p,
-            dir: t.normal + rand_in_unit_sphere(rng)
+            dir: t.normal + rand_in_unit_sphere(rng),
         };
         ray_color(&new_ray, w, rng, depth - 1) * 0.5
     } else {
@@ -44,8 +47,8 @@ fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
 }
 
 fn main() {
-    let width = 200;
-    let height = 100;
+    let width = 300;
+    let height = 150;
 
     let mut p = Picture::new(width, height);
 
@@ -59,11 +62,11 @@ fn main() {
     let camera = Camera::new(origin, viewport_start, hlength, vlength);
     let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, 0.0, -1.0),
-        radius: 0.5
+        radius: 0.5,
     }));
     let sphere2: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, -100.5, -1.0),
-        radius: 100.0
+        radius: 100.0,
     }));
     world.add_hittable(&sphere1);
     world.add_hittable(&sphere2);
@@ -72,7 +75,7 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     let pb = ProgressBar::new(height as u64);
-
+    let t = time::SystemTime::now();
     // neg-y axis is i, pos-x axis is j
     for i in 0..height {
         for j in 0..width {
@@ -80,7 +83,7 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world, &mut rng,64);
+                c += ray_color(&camera.get_ray(u, v), &world, &mut rng, 64);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;
@@ -89,7 +92,9 @@ fn main() {
     }
 
     pb.finish();
-    println!("Undergoing gamma correction...");
+    println!("Finished, time = {}ms.",
+             time::SystemTime::now().duration_since(t).unwrap().as_millis());
+    println!("Doing gamma correction...");
     let filter = GammaFilter { gamma: 2.0 };
     filter.filter(&mut p);
     println!("Writing to out.ppm...");

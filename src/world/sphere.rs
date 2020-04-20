@@ -1,6 +1,5 @@
-use crate::vec::Vec3;
+use crate::utils::{Ray, Vec3};
 use crate::world::{HitRecord, Hittable};
-use crate::ray::Ray;
 use crate::world::Face;
 
 pub struct Sphere {

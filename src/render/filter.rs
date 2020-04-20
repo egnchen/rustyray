@@ -1,6 +1,5 @@
 //! Filter: define filters for rendering.
-
-use crate::ppm::{Picture, Color};
+use crate::io::Picture;
 
 pub trait Filter {
     fn filter(&self, p: &mut Picture);

@@ -1,16 +1,17 @@
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
+
+use crate::utils::Ray;
+use crate::world::HitRecord;
 
 use super::Hittable;
-use crate::ray::Ray;
-use crate::world::HitRecord;
 
 pub struct World {
     hittable_list: Vec<Rc<RefCell<dyn Hittable>>>,
 }
 
 impl World {
-    pub fn new() ->World { World { hittable_list: vec![]} }
+    pub fn new() -> World { World { hittable_list: vec![] } }
 
     pub fn add_hittable(&mut self, h: &Rc<RefCell<dyn Hittable>>) {
         self.hittable_list.push(Rc::clone(&h));
