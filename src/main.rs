@@ -1,6 +1,4 @@
-use std::borrow::Borrow;
-use std::cell::{Ref, RefCell};
-use std::ops::Deref;
+use std::cell::RefCell;
 use std::rc::Rc;
 use std::time;
 
@@ -14,7 +12,7 @@ use ray_tracer::render::{Camera, GammaFilter};
 use ray_tracer::render::filter::Filter;
 use ray_tracer::utils::{Ray, Vec3};
 use ray_tracer::world::{Hittable, Sphere, World};
-use ray_tracer::world::material::{FilteredRay, LambertianDiffuse, Material, Metal};
+use ray_tracer::world::material::{LambertianDiffuse, Material, Metal};
 
 fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
     const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
@@ -38,8 +36,8 @@ fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
 }
 
 fn main() {
-    let width = 300;
-    let height = 150;
+    let width = 500;
+    let height = 250;
 
     let mut p = Picture::new(width, height);
 
@@ -60,6 +58,10 @@ fn main() {
         albedo: Vec3(0.7, 0.7, 0.7),
         fuzziness: 0.0,
     }));
+    let mat3: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Metal {
+        albedo: Vec3(0.7, 0.7, 0.7),
+        fuzziness: 0.3,
+    }));
 
     let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, 0.0, -1.0),
@@ -74,13 +76,13 @@ fn main() {
     let sphere3: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(1.0, 0.0, -1.0),
         radius: 0.5,
-        mat: Rc::clone(&mat2),
+        mat: Rc::clone(&mat3),
     }));
 
     let sphere_ground: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
-        mat: Rc::clone(&mat1)
+        mat: Rc::clone(&mat1),
     }));
     world.add_hittable(&sphere1);
     world.add_hittable(&sphere2);
