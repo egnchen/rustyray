@@ -1,10 +1,15 @@
-pub mod sphere;
-pub mod world;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub use sphere::Sphere;
 pub use world::World;
 
 use crate::utils::{Ray, Vec3};
+use crate::world::material::Material;
+
+pub mod sphere;
+pub mod world;
+pub mod material;
 
 #[derive(Debug)]
 pub enum Face {
@@ -26,12 +31,12 @@ impl Face {
     }
 }
 
-#[derive(Default)]
 pub struct HitRecord {
     pub f: Face,
     pub t: f64,
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
+    pub mat: Rc<RefCell<dyn Material>>,
 }
 
 pub trait Hittable {

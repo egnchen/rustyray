@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use super::vec::Vec3;
 
 #[derive(Clone, Copy)]

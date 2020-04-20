@@ -1,4 +1,6 @@
-use std::cell::RefCell;
+use std::borrow::Borrow;
+use std::cell::{Ref, RefCell};
+use std::ops::Deref;
 use std::rc::Rc;
 use std::time;
 
@@ -12,32 +14,21 @@ use ray_tracer::render::{Camera, GammaFilter};
 use ray_tracer::render::filter::Filter;
 use ray_tracer::utils::{Ray, Vec3};
 use ray_tracer::world::{Hittable, Sphere, World};
+use ray_tracer::world::material::{FilteredRay, LambertianDiffuse, Material, Metal};
 
-/// return a vector pointing to a random direction
-/// within a unit sphere
-/// The distribution used here is Lambertian distribution
-/// which has a distribution of cos(\phi)
-fn rand_in_unit_sphere(rng: &mut impl Rng) -> Vec3<f64> {
-    let a: f64 = rng.gen_range(0.0, 2.0 * std::f64::consts::PI);
-    let z: f64 = rng.gen_range(-1.0, 1.0);
-    let r: f64 = (1.0 - z * z).sqrt();
-    Vec3(r * a.cos(), r * a.sin(), z)
-}
-
-fn ray_color(r: &Ray, w: &World, rng: &mut impl Rng, depth: u8) -> Color {
+fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
     const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
     const HIGH: Color = Color { 0: 0.5, 1: 0.7, 2: 1.0 };
     if depth == 0 {
         return Color::zero();
     }
-    if let Some(t) = w.hit(&r, 0.001, f64::infinity()) {
+    if let Some(h) = w.hit(&r, 0.001, f64::infinity()) {
         // it hit something
-        // assume diffuse material here
-        let new_ray = Ray {
-            orig: t.p,
-            dir: t.normal + rand_in_unit_sphere(rng),
-        };
-        ray_color(&new_ray, w, rng, depth - 1) * 0.5
+        if let Some(f) = RefCell::borrow(&h.mat).scatter(&r, &h) {
+            // scattered ray through material
+            return f.attenuation * ray_color(&f.scattered, &w, depth - 1);
+        }
+        Vec3::zero()
     } else {
         // sky box
         let unit = r.direction().unit_vector();
@@ -60,16 +51,41 @@ fn main() {
     // initialize the world
     let mut world = World::new();
     let camera = Camera::new(origin, viewport_start, hlength, vlength);
+
+    // materials
+    let mat1: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(LambertianDiffuse {
+        albedo: Vec3(0.3, 0.5, 0.7),
+    }));
+    let mat2: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Metal {
+        albedo: Vec3(0.7, 0.7, 0.7),
+        fuzziness: 0.0,
+    }));
+
     let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, 0.0, -1.0),
         radius: 0.5,
+        mat: Rc::clone(&mat1),
     }));
     let sphere2: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
+        center: Vec3(-1.0, 0.0, -1.0),
+        radius: 0.5,
+        mat: Rc::clone(&mat2),
+    }));
+    let sphere3: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
+        center: Vec3(1.0, 0.0, -1.0),
+        radius: 0.5,
+        mat: Rc::clone(&mat2),
+    }));
+
+    let sphere_ground: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
+        mat: Rc::clone(&mat1)
     }));
     world.add_hittable(&sphere1);
     world.add_hittable(&sphere2);
+    world.add_hittable(&sphere3);
+    world.add_hittable(&sphere_ground);
 
     let sample_per_pixel = 128;
     let mut rng = rand::thread_rng();
@@ -83,7 +99,7 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world, &mut rng, 64);
+                c += ray_color(&camera.get_ray(u, v), &world, 64);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;

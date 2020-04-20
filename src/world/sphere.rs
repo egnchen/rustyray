@@ -1,10 +1,15 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use crate::utils::{Ray, Vec3};
 use crate::world::{HitRecord, Hittable};
 use crate::world::Face;
+use crate::world::material::Material;
 
 pub struct Sphere {
     pub center: Vec3<f64>,
     pub radius: f64,
+    pub mat: Rc<RefCell<dyn Material>>,
 }
 
 /// calculate if a ray will hit a sphere
@@ -30,6 +35,7 @@ impl Hittable for Sphere {
                     t,
                     p,
                     normal: (p - self.center).unit_vector(),
+                    mat: Rc::clone(&self.mat),
                 });
             }
             let t = (-half_b + discriminant.sqrt()) / a;
@@ -40,6 +46,7 @@ impl Hittable for Sphere {
                     p,
                     t,
                     normal: (p - self.center).unit_vector(),
+                    mat: Rc::clone(&self.mat),
                 });
             }
         }
