@@ -12,8 +12,8 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Multi-sampling
 - [x] Diffuse materials
 - [x] Gamma correction filter
-- [ ] Reflective materials
-- [ ] Reflective materials with fuzziness
+- [x] Reflective materials
+- [x] Reflective materials with fuzziness
 - [ ] Dielectric materials
 - [ ] Positionable camera
 - [ ] Depth of field
