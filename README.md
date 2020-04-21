@@ -14,7 +14,7 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Gamma correction filter
 - [x] Reflective materials
 - [x] Reflective materials with fuzziness
-- [ ] Dielectric materials
+- [x] Dielectric materials
 - [ ] Positionable camera
 - [ ] Depth of field
 - [ ] Scene configuration

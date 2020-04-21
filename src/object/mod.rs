@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::fmt::{Display, Formatter, Result};
 use std::rc::Rc;
 
 pub use material::LambertianDiffuse;
@@ -40,6 +41,12 @@ pub struct HitRecord {
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
     pub mat: Rc<RefCell<dyn Material>>,
+}
+
+impl Display for HitRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "{:?} t={} p={} normal={}", self.f, self.t, self.p, self.normal)
+    }
 }
 
 pub trait Hittable {

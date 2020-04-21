@@ -17,22 +17,34 @@ use ray_tracer::utils::{Ray, Vec3};
 fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
     const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
     const HIGH: Color = Color { 0: 0.5, 1: 0.7, 2: 1.0 };
-    if depth == 0 {
-        return Color::zero();
-    }
-    return if let Some(h) = w.hit(&r, 0.01, f64::infinity()) {
-        // it hit something
-        if let Some(f) = RefCell::borrow(&h.mat).scatter(&r, &h) {
-            // scattered ray through material
-            return f.attenuation * ray_color(&f.scattered, &w, depth - 1);
+    // don't do tail-recursion :)
+    // calculate sky-box color first
+    let unit = r.direction().unit_vector();
+    let t = 0.5 * (unit.y() + 1.0) as f64;
+    let mut ret = LOW * (1.0 - t) + HIGH * t;
+
+    // here we go
+    let mut ray = *r;
+    let mut trace= vec![];
+    for _i in 0..depth {
+        if let Some(h) = w.hit(&ray, 0.001, f64::infinity()) {
+            // it hit something
+            if let Some(f) = RefCell::borrow(&h.mat).scatter(&ray, &h) {
+                ret *= f.attenuation;
+                ray = f.scattered;
+                trace.push((h.f, ray));
+            } else {
+                return Color::zero();
+            }
+        } else {
+            return ret;
         }
-        Vec3::zero()
-    } else {
-        // sky box
-        let unit = r.direction().unit_vector();
-        let t = 0.5 * (unit.y() + 1.0) as f64;
-        LOW * (1.0 - t) + HIGH * t
     }
+    // println!("Depth reached.");
+    // for r in trace.iter() {
+    //     println!("{:?}", r);
+    // }
+    Color::zero()
 }
 
 fn main() {
@@ -58,9 +70,7 @@ fn main() {
         albedo: Vec3(0.7, 0.7, 0.7),
         fuzziness: 0.0,
     }));
-    let mat3: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Dielectric {
-        eta: 1.33,
-    }));
+    let mat3: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Dielectric::new(1.5)));
 
     let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, 0.0, -1.0),
@@ -100,7 +110,7 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world, 10);
+                c += ray_color(&camera.get_ray(u, v), &world, 64);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;

@@ -26,30 +26,30 @@ impl Hittable for Sphere {
         let c = t1.length_square() - self.radius * self.radius;
 
         let discriminant = half_b * half_b - a * c;
-        if discriminant > 0.0 {
-            let t = (-half_b - discriminant.sqrt()) / a;
-            if t < t_max && t > t_min {
-                let p = r.at(t);
-                return Some(HitRecord {
-                    f: Face::calc(&p, &r),
-                    t,
-                    p,
-                    normal: (p - self.center).unit_vector(),
-                    mat: Rc::clone(&self.mat),
-                });
+        return if discriminant > 0.0 {
+            let mut t = (-half_b - discriminant.sqrt()) / a;
+            if t > t_max || t < t_min {
+                // another root
+                t += 2.0 * discriminant.sqrt() / a;
+                if t > t_max || t < t_min {
+                    return None;
+                }
             }
-            let t = (-half_b + discriminant.sqrt()) / a;
-            if t < t_max && t > t_min {
-                let p = r.at(t);
-                return Some(HitRecord {
-                    f: Face::calc(&p, &r),
-                    p,
-                    t,
-                    normal: (p - self.center).unit_vector(),
-                    mat: Rc::clone(&self.mat),
-                });
+            let p = r.at(t);
+            let mut normal = (p - self.center) / self.radius;
+            let f = Face::calc(&normal, &r);
+            if let Face::Outward = f {
+                normal = Vec3::<f64>::zero() - normal;
             }
+            Some(HitRecord {
+                f,
+                t,
+                p,
+                normal,
+                mat: Rc::clone(&self.mat),
+            })
+        } else {
+            None
         }
-        None
-    }
+        }
 }

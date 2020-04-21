@@ -162,11 +162,11 @@ impl<T: NumOps + NumCast + Copy> Vec3<T> {
 
 /// various products
 impl<T: Num + Copy> Vec3<T> {
-    pub fn dot(self, rhs: Self) -> T {
+    pub fn dot(&self, rhs: Self) -> T {
         self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
     }
 
-    pub fn ele_mul(self, rhs: Self) -> Vec3<T> { self * rhs }
+    pub fn ele_mul(&self, rhs: Self) -> Vec3<T> { *self * rhs }
 
     pub fn cross(&self, rhs: Self) -> Vec3<T> {
         Vec3(

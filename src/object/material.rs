@@ -9,6 +9,7 @@ pub struct FilteredRay {
 }
 
 pub trait Material {
+    fn get_type(&self) -> &'static str;
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay>;
 }
 
@@ -26,6 +27,7 @@ fn rand_unit_vector() -> Vec3<f64> {
 }
 
 impl Material for LambertianDiffuse {
+    fn get_type(&self) -> &'static str { "LambertianDiffuse" }
     fn scatter(&self, _r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         Some(FilteredRay {
             attenuation: self.albedo,
@@ -53,6 +55,7 @@ impl Metal {
 }
 
 impl Material for Metal {
+    fn get_type(&self) -> &'static str { "Metal" }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         let reflect_dir = r.dir - h.normal * (2.0 * r.direction().dot(h.normal)) +
             rand_unit_vector() * self.fuzziness;
@@ -71,16 +74,24 @@ impl Material for Metal {
 }
 
 pub struct Dielectric {
-    pub eta: f64,
+    eta: f64,
+    eta_inv: f64,
 }
 
 impl Dielectric {
+    pub fn new(eta: f64) -> Dielectric {
+        Dielectric {
+            eta,
+            eta_inv: 1.0 / eta,
+        }
+    }
+
     fn refract(ru: Vec3<f64>, normal: Vec3<f64>, eta_ratio: f64) -> Vec3<f64> {
         let cos_theta = -ru.dot(normal);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         return if sin_theta * eta_ratio > 1.0 {
             // cannot refract, must reflect
-            ru - normal * (2.0 * ru.dot(normal))
+            ru - normal * (2.0 * cos_theta)
         } else {
             // can refract
             let r_parallel = (ru + normal * cos_theta) * eta_ratio;
@@ -96,11 +107,11 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
+    fn get_type(&self) -> &'static str { "Dielectric" }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
-        // calculate refraction
         let er = match h.f {
-            Face::Inward => self.eta,
-            Face::Outward => 1.0 / self.eta,
+            Face::Inward => self.eta_inv,
+            Face::Outward => self.eta,
         };
         let dir = Self::refract(r.direction().unit_vector(), h.normal, er);
         Some(FilteredRay {
