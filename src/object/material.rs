@@ -57,7 +57,7 @@ impl Metal {
 impl Material for Metal {
     fn get_type(&self) -> &'static str { "Metal" }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
-        let reflect_dir = r.dir - h.normal * (2.0 * r.direction().dot(h.normal)) +
+        let reflect_dir = r.direction() - h.normal * (2.0 * r.direction().dot(h.normal)) +
             rand_unit_vector() * self.fuzziness;
         return if reflect_dir.dot(h.normal) > 0.0 {
             Some(FilteredRay {
@@ -74,35 +74,27 @@ impl Material for Metal {
 }
 
 pub struct Dielectric {
-    eta: f64,
+    pub eta: f64,
     eta_inv: f64,
+    r0: f64,
+    pub albedo: Vec3<f64>,
 }
 
 impl Dielectric {
-    pub fn new(eta: f64) -> Dielectric {
+    pub fn new(eta: f64, albedo: Vec3<f64>) -> Dielectric {
+        let mut r0 = (1.0 - eta) / (1.0 + eta);
+        r0 = r0 * r0;
         Dielectric {
             eta,
             eta_inv: 1.0 / eta,
+            r0,
+            albedo,
         }
     }
 
-    fn refract(ru: Vec3<f64>, normal: Vec3<f64>, eta_ratio: f64) -> Vec3<f64> {
-        let cos_theta = -ru.dot(normal);
-        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-        return if sin_theta * eta_ratio > 1.0 {
-            // cannot refract, must reflect
-            ru - normal * (2.0 * cos_theta)
-        } else {
-            // can refract
-            let r_parallel = (ru + normal * cos_theta) * eta_ratio;
-            if r_parallel.length_square() > 1.0 {
-                println!("ru={}\nnormal={}", ru, normal);
-                println!("eta_ratio={}\ncos_theta={}\nr_parallel={}", eta_ratio, cos_theta, r_parallel);
-                panic!("");
-            }
-            let r_perp = normal * (-((1.0 - r_parallel.length_square()).sqrt()));
-            r_parallel + r_perp
-        }
+    #[inline(always)]
+    fn schlick(&self, cosine: f64) -> f64 {
+        self.r0 + (1.0 - self.r0) * (1.0 - cosine).powi(5)
     }
 }
 
@@ -113,9 +105,21 @@ impl Material for Dielectric {
             Face::Inward => self.eta_inv,
             Face::Outward => self.eta,
         };
-        let dir = Self::refract(r.direction().unit_vector(), h.normal, er);
+        let ru = r.direction().unit_vector();
+        let cos_theta = -ru.dot(h.normal);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        let rnd: f64 = thread_rng().gen();
+        let dir = if sin_theta * er > 1.0 || rnd > self.schlick(cos_theta) {
+            // reflect
+            ru - h.normal * (2.0 * cos_theta)
+        } else {
+            // refract
+            let r_parallel = (ru + h.normal * cos_theta) * er;
+            let r_perp = h.normal * (-((1.0 - r_parallel.length_square()).sqrt()));
+            r_parallel + r_perp
+        };
         Some(FilteredRay {
-            attenuation: Vec3::one(),
+            attenuation: self.albedo,
             scattered: Ray {
                 orig: h.p,
                 dir,
