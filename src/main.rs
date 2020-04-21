@@ -14,28 +14,28 @@ use ray_tracer::render::{Camera, GammaFilter};
 use ray_tracer::render::filter::Filter;
 use ray_tracer::utils::{Ray, Vec3};
 
-fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
+fn ray_color(r: Ray, w: &World, depth: u8) -> Color {
     const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
     const HIGH: Color = Color { 0: 0.5, 1: 0.7, 2: 1.0 };
-    // don't do tail-recursion :)
-    // calculate sky-box color first
-    let unit = r.direction().unit_vector();
-    let t = 0.5 * (unit.y() + 1.0) as f64;
-    let mut ret = LOW * (1.0 - t) + HIGH * t;
 
-    // here we go
-    let mut ray = *r;
+    // don't do tail-recursion :)
+    // calculate
+    let mut r = r;
+    let mut ret = Color::one();
     for _i in 0..depth {
-        if let Some(h) = w.hit(&ray, 0.001, f64::infinity()) {
-            // it hit something
-            if let Some(f) = RefCell::borrow(&h.mat).scatter(&ray, &h) {
+        if let Some(h) = w.hit(&r, 0.001, f64::infinity()) {
+            // hit something
+            if let Some(f) = RefCell::borrow(&h.mat).scatter(&r, &h) {
                 ret *= f.attenuation;
-                ray = f.scattered;
+                r = f.scattered;
             } else {
                 return Color::zero();
             }
         } else {
-            return ret;
+            // sky box
+            let unit = r.direction().unit_vector();
+            let t = 0.5 * (unit.y() + 1.0);
+            return ret * (LOW * (1.0 -t) + HIGH * t);
         }
     }
     Color::zero()
@@ -106,7 +106,7 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world, 16);
+                c += ray_color(camera.get_ray(u, v), &world, 16);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;
