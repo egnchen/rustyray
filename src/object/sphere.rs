@@ -1,10 +1,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::object::{HitRecord, Hittable};
+use crate::object::Face;
+use crate::object::material::Material;
 use crate::utils::{Ray, Vec3};
-use crate::world::{HitRecord, Hittable};
-use crate::world::Face;
-use crate::world::material::Material;
 
 pub struct Sphere {
     pub center: Vec3<f64>,

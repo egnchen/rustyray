@@ -1,17 +1,20 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+pub use material::LambertianDiffuse;
+pub use material::Metal;
 pub use sphere::Sphere;
 pub use world::World;
 
+use crate::object::material::Material;
 use crate::utils::{Ray, Vec3};
-use crate::world::material::Material;
 
 pub mod sphere;
 pub mod world;
 pub mod material;
 
 #[derive(Debug)]
+#[derive(Copy, Clone)]
 pub enum Face {
     Inward,
     Outward,

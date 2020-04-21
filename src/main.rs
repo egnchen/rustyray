@@ -8,11 +8,11 @@ use rand::Rng;
 
 use ray_tracer::io::Picture;
 use ray_tracer::io::ppm::Color;
+use ray_tracer::object::{Hittable, Sphere, World};
+use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
 use ray_tracer::render::{Camera, GammaFilter};
 use ray_tracer::render::filter::Filter;
 use ray_tracer::utils::{Ray, Vec3};
-use ray_tracer::world::{Hittable, Sphere, World};
-use ray_tracer::world::material::{LambertianDiffuse, Material, Metal};
 
 fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
     const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
@@ -20,7 +20,7 @@ fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
     if depth == 0 {
         return Color::zero();
     }
-    if let Some(h) = w.hit(&r, 0.001, f64::infinity()) {
+    return if let Some(h) = w.hit(&r, 0.01, f64::infinity()) {
         // it hit something
         if let Some(f) = RefCell::borrow(&h.mat).scatter(&r, &h) {
             // scattered ray through material
@@ -36,8 +36,8 @@ fn ray_color(r: &Ray, w: &World, depth: u8) -> Color {
 }
 
 fn main() {
-    let width = 500;
-    let height = 250;
+    let width = 300;
+    let height = 150;
 
     let mut p = Picture::new(width, height);
 
@@ -46,21 +46,20 @@ fn main() {
     let hlength = 4.0;
     let vlength = 2.0;
 
-    // initialize the world
+    // initialize the object
     let mut world = World::new();
     let camera = Camera::new(origin, viewport_start, hlength, vlength);
 
     // materials
     let mat1: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(LambertianDiffuse {
-        albedo: Vec3(0.3, 0.5, 0.7),
+        albedo: Vec3(0.6, 0.6, 0.8),
     }));
     let mat2: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Metal {
         albedo: Vec3(0.7, 0.7, 0.7),
         fuzziness: 0.0,
     }));
-    let mat3: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Metal {
-        albedo: Vec3(0.7, 0.7, 0.7),
-        fuzziness: 0.3,
+    let mat3: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Dielectric {
+        eta: 1.33,
     }));
 
     let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
@@ -89,7 +88,7 @@ fn main() {
     world.add_hittable(&sphere3);
     world.add_hittable(&sphere_ground);
 
-    let sample_per_pixel = 128;
+    let sample_per_pixel = 256;
     let mut rng = rand::thread_rng();
 
     let pb = ProgressBar::new(height as u64);
@@ -101,7 +100,7 @@ fn main() {
             for _k in 0..sample_per_pixel {
                 let v = (rng.gen::<f64>() + (height - i - 1) as f64) / height as f64;
                 let u = (rng.gen::<f64>() + j as f64) / width as f64;
-                c += ray_color(&camera.get_ray(u, v), &world, 64);
+                c += ray_color(&camera.get_ray(u, v), &world, 10);
             }
             c /= sample_per_pixel as f64;
             p.data[(i * width + j) as usize] = c;

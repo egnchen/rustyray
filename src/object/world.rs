@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::object::HitRecord;
 use crate::utils::Ray;
-use crate::world::HitRecord;
 
 use super::Hittable;
 
