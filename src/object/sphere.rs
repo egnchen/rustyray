@@ -14,8 +14,8 @@ pub struct Sphere {
 
 /// calculate if a ray will hit a sphere
 /// $$t^2 \vec{\mathbf{b}}\cdot\vec{\mathbf{b}}
-//      + 2t \vec{\mathbf{b}} \cdot \vec{(\mathbf{a}-\mathbf{c})}
-//      + \vec{(\mathbf{a}-\mathbf{c})} \cdot \vec{(\mathbf{a}-\mathbf{c})} - R^2 = 0$$
+///     + 2t \vec{\mathbf{b}} \cdot \vec{(\mathbf{a}-\mathbf{c})}
+///     + \vec{(\mathbf{a}-\mathbf{c})} \cdot \vec{(\mathbf{a}-\mathbf{c})} - R^2 = 0$$
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let t1 = r.origin() - self.center;
@@ -39,7 +39,7 @@ impl Hittable for Sphere {
             let mut normal = (p - self.center) / self.radius;
             let f = Face::calc(&normal, &r);
             if let Face::Outward = f {
-                normal = Vec3::<f64>::zero() - normal;
+                normal = -normal;
             }
             Some(HitRecord {
                 f,
@@ -51,5 +51,5 @@ impl Hittable for Sphere {
         } else {
             None
         }
-        }
+    }
 }

@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use rand::{Rng, thread_rng};
 
 use crate::object::{Face, HitRecord};
@@ -33,7 +35,7 @@ impl Material for LambertianDiffuse {
             attenuation: self.albedo,
             scattered: Ray {
                 orig: h.p,
-                dir: h.normal + rand_unit_vector()
+                dir: h.normal + rand_unit_vector(),
             },
         })
     }
@@ -69,7 +71,7 @@ impl Material for Metal {
             })
         } else {
             None
-        }
+        };
     }
 }
 
@@ -92,6 +94,7 @@ impl Dielectric {
         }
     }
 
+    // approximation for reflection probability
     #[inline(always)]
     fn schlick(&self, cosine: f64) -> f64 {
         self.r0 + (1.0 - self.r0) * (1.0 - cosine).powi(5)
@@ -102,14 +105,14 @@ impl Material for Dielectric {
     fn get_type(&self) -> &'static str { "Dielectric" }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         let er = match h.f {
-            Face::Inward => self.eta_inv,
-            Face::Outward => self.eta,
+            Face::Inward => self.eta,
+            Face::Outward => self.eta_inv,
         };
         let ru = r.direction().unit_vector();
         let cos_theta = -ru.dot(h.normal);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
         let rnd: f64 = thread_rng().gen();
-        let dir = if sin_theta * er > 1.0 || rnd > self.schlick(cos_theta) {
+        let dir = if sin_theta * er > 1.0  || rnd < self.schlick(cos_theta) {
             // reflect
             ru - h.normal * (2.0 * cos_theta)
         } else {

@@ -5,27 +5,10 @@ use std::io;
 use std::io::BufWriter;
 use std::io::Write;
 
+use image::ImageBuffer;
+
+use crate::io::{Color24, Picture};
 use crate::utils::Vec3;
-
-/// Color in RGB
-pub type Color = Vec3<f64>;
-pub type Color24 = Vec3<u8>;
-
-impl Color24 {
-    pub fn from(c: &Color) -> Self {
-        Color24 {
-            0: (c.0 * 255.0) as u8,
-            1: (c.1 * 255.0) as u8,
-            2: (c.2 * 255.0) as u8,
-        }
-    }
-}
-
-pub struct Picture {
-    pub width: u32,
-    pub height: u32,
-    pub data: Vec<Color>,
-}
 
 impl Picture {
     pub fn new(width: u32, height: u32) -> Picture {
@@ -37,7 +20,7 @@ impl Picture {
     }
 
     /// write_to_file: Write a picture to PPM file
-    pub fn write_to_file(&self, filename: &str) -> io::Result<()> {
+    pub fn write_to_ppm(&self, filename: &str) -> io::Result<()> {
         let f = File::create(filename)?;
         let mut stream = BufWriter::new(f);
 
@@ -56,5 +39,17 @@ impl Picture {
             write!(&mut stream, "\n")?;
         }
         stream.flush()
+    }
+
+    pub fn write_to_png(&self, filename: &str) {
+        let mut buf = ImageBuffer::from_fn(self.width, self.height, |x, y| {
+            let v = (y * self.width + x) as usize;
+            image::Rgb([
+                (self.data[v].0 * 255.0) as u8,
+                (self.data[v].1 * 255.0) as u8,
+                (self.data[v].2 * 255.0) as u8,
+            ])
+        });
+        buf.save(filename).unwrap();
     }
 }

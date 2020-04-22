@@ -6,8 +6,7 @@ use indicatif::ProgressBar;
 use num_traits::float::FloatCore;
 use rand::Rng;
 
-use ray_tracer::io::Picture;
-use ray_tracer::io::ppm::Color;
+use ray_tracer::io::{Color, Picture};
 use ray_tracer::object::{Hittable, Sphere, World};
 use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
 use ray_tracer::render::{Camera, GammaFilter};
@@ -35,7 +34,7 @@ fn ray_color(r: Ray, w: &World, depth: u8) -> Color {
             // sky box
             let unit = r.direction().unit_vector();
             let t = 0.5 * (unit.y() + 1.0);
-            return ret * (LOW * (1.0 -t) + HIGH * t);
+            return ret * (LOW * (1.0 - t) + HIGH * t);
         }
     }
     Color::zero()
@@ -58,27 +57,30 @@ fn main() {
 
     // materials
     let mat_diffuse: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(LambertianDiffuse {
-        albedo: Vec3(0.3, 0.3, 0.8),
+        albedo: Vec3(0.1, 0.2, 0.5),
+    }));
+    let mat_ground: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(LambertianDiffuse {
+        albedo: Vec3(0.8, 0.8, 0.0),
     }));
     let mat_metal: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Metal {
-        albedo: Vec3(0.7, 0.7, 0.7),
-        fuzziness: 0.25,
+        albedo: Vec3(0.8, 0.6, 0.2),
+        fuzziness: 0.0,
     }));
     let mat_dielectric: Rc<RefCell<dyn Material>> = Rc::from(RefCell::new(Dielectric::new(
         1.5, Vec3(1.0, 1.0, 1.0),
     )));
 
-    let sphere1: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
+    let sphere_middle: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, 0.0, -1.0),
         radius: 0.5,
-        mat: Rc::clone(&mat_dielectric),
-    }));
-    let sphere2: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
-        center: Vec3(-1.0, 0.0, -1.0),
-        radius: -0.5,
         mat: Rc::clone(&mat_diffuse),
     }));
-    let sphere3: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
+    let sphere_left: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
+        center: Vec3(-1.0, 0.0, -1.0),
+        radius: -0.5,
+        mat: Rc::clone(&mat_dielectric),
+    }));
+    let sphere_right: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(1.0, 0.0, -1.0),
         radius: 0.5,
         mat: Rc::clone(&mat_metal),
@@ -87,11 +89,11 @@ fn main() {
     let sphere_ground: Rc<RefCell<dyn Hittable>> = Rc::from(RefCell::new(Sphere {
         center: Vec3(0.0, -100.5, -1.0),
         radius: 100.0,
-        mat: Rc::clone(&mat_diffuse),
+        mat: Rc::clone(&mat_ground),
     }));
-    world.add_hittable(&sphere1);
-    world.add_hittable(&sphere2);
-    world.add_hittable(&sphere3);
+    world.add_hittable(&sphere_middle);
+    world.add_hittable(&sphere_left);
+    world.add_hittable(&sphere_right);
     world.add_hittable(&sphere_ground);
 
     let sample_per_pixel = 128;
@@ -120,6 +122,6 @@ fn main() {
     println!("Doing gamma correction...");
     let filter = GammaFilter { gamma: 2.0 };
     filter.filter(&mut p);
-    println!("Writing to out.ppm...");
-    p.write_to_file("out.ppm").expect("Failed to write file.");
+    println!("Writing to out.png...");
+    p.write_to_png("out.png");
 }

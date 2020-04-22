@@ -2,7 +2,7 @@ extern crate num_traits;
 
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::{Num, NumCast, NumOps};
 use rand::distributions::uniform::SampleUniform;
@@ -116,6 +116,15 @@ impl<T: DivAssign + Copy> DivAssign<T> for Vec3<T> {
         self.0 /= rhs;
         self.1 /= rhs;
         self.2 /= rhs;
+    }
+}
+
+/// unary neg
+impl<T: Neg> Neg for Vec3<T> {
+    type Output = Vec3<T::Output>;
+
+    fn neg(self) -> Self::Output {
+        Vec3(-self.0, -self.1, -self.2)
     }
 }
 
