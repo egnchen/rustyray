@@ -1,5 +1,3 @@
-use std::cmp::min;
-
 use rand::{Rng, thread_rng};
 
 use crate::object::{Face, HitRecord};
@@ -105,12 +103,14 @@ impl Material for Dielectric {
     fn get_type(&self) -> &'static str { "Dielectric" }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         let er = match h.f {
-            Face::Inward => self.eta,
-            Face::Outward => self.eta_inv,
+            Face::Inward => self.eta_inv,
+            Face::Outward => self.eta,
         };
         let ru = r.direction().unit_vector();
         let cos_theta = -ru.dot(h.normal);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+        // There's something not right about refraction rate...
+        // ignore it for now
         let rnd: f64 = thread_rng().gen();
         let dir = if sin_theta * er > 1.0  || rnd < self.schlick(cos_theta) {
             // reflect

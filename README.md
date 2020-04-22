@@ -15,8 +15,8 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Reflective materials
 - [x] Reflective materials with fuzziness
 - [x] Dielectric materials
-- [ ] Positionable camera
-- [ ] Depth of field
+- [x] Positionable camera
+- [x] Depth of field
 - [ ] Scene configuration
 - [ ] Material configuration
 - [ ] Multi-threaded rendering
@@ -36,9 +36,7 @@ $ cargo run --release
     Finished release [optimized] target(s) in 0.08s
      Running `target\release\ray_tracer.exe`
 ███████████████████████████████████████████████████████████████150/150
-Finished, time = 2450ms.
+Finished, time = ms.
 Doing gamma correction...
-Writing to out.ppm...
+Writing to out.png...
 ```
-
-The result is in `out.ppm`. Search for ppm file viewers online :)

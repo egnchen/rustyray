@@ -17,7 +17,7 @@ impl Color24 {
 }
 
 pub struct Picture {
-    pub width: u32,
-    pub height: u32,
+    pub width: usize,
+    pub height: usize,
     pub data: Vec<Color>,
 }

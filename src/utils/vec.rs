@@ -5,6 +5,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::{Num, NumCast, NumOps};
+use rand::{Rng, thread_rng};
 use rand::distributions::uniform::SampleUniform;
 
 #[derive(Debug)]
@@ -154,7 +155,8 @@ impl<T: Num + Copy> Vec3<T> {
 }
 
 impl<T: Copy + SampleUniform> Vec3<T> {
-    pub fn random(min: T, max: T, rng: &mut impl rand::Rng) -> Vec3<T> {
+    pub fn random(min: T, max: T) -> Vec3<T> {
+        let mut rng = thread_rng();
         Vec3(rng.gen_range(min, max), rng.gen_range(min, max), rng.gen_range(min, max))
     }
 }

@@ -11,7 +11,7 @@ use crate::io::{Color24, Picture};
 use crate::utils::Vec3;
 
 impl Picture {
-    pub fn new(width: u32, height: u32) -> Picture {
+    pub fn new(width: usize, height: usize) -> Picture {
         Picture {
             width,
             height,
@@ -19,7 +19,7 @@ impl Picture {
         }
     }
 
-    /// write_to_file: Write a picture to PPM file
+    /// write_to_ppm: Write a picture to PPM file
     pub fn write_to_ppm(&self, filename: &str) -> io::Result<()> {
         let f = File::create(filename)?;
         let mut stream = BufWriter::new(f);
@@ -42,8 +42,10 @@ impl Picture {
     }
 
     pub fn write_to_png(&self, filename: &str) {
-        let mut buf = ImageBuffer::from_fn(self.width, self.height, |x, y| {
-            let v = (y * self.width + x) as usize;
+        let w = self.width as u32;
+        let h = self.height as u32;
+        let buf = ImageBuffer::from_fn(w, h, |x, y| {
+            let v = (y * w + x) as usize;
             image::Rgb([
                 (self.data[v].0 * 255.0) as u8,
                 (self.data[v].1 * 255.0) as u8,
