@@ -42,7 +42,7 @@ fn init_world() -> World {
                               0.25,
                               j as f64 * 1.2 + rng.gen_range(-0.5, 0.5));
             let rand = rng.gen::<f64>();
-            let m: Rc<RefCell<dyn Material>> = if rand < 0.7 {
+            let m: Rc<RefCell<dyn Material>> = if rand < 0.65 {
                 // diffuse material
                 Rc::from(RefCell::new(LambertianDiffuse {
                     albedo: Vec3::random(0.0, 1.0),
