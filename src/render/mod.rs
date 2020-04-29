@@ -1,8 +1,13 @@
 pub use camera::Camera;
 pub use filter::GammaFilter;
-pub use renderer::Renderer;
+
+use crate::io::Picture;
 
 pub mod camera;
 pub mod filter;
-pub mod renderer;
 
+pub mod default_renderer;
+
+pub trait Renderer {
+    fn render(&self) -> Result<Picture, &'static str>;
+}

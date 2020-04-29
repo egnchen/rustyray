@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::object::{HitRecord, Hittable};
 use crate::object::Face;
@@ -9,7 +9,7 @@ use crate::utils::{Ray, Vec3};
 pub struct Sphere {
     pub center: Vec3<f64>,
     pub radius: f64,
-    pub mat: Rc<RefCell<dyn Material>>,
+    pub mat: Arc<RefCell<dyn Material>>,
 }
 
 /// calculate if a ray will hit a sphere
@@ -46,10 +46,10 @@ impl Hittable for Sphere {
                 t,
                 p,
                 normal,
-                mat: Rc::clone(&self.mat),
+                mat: Arc::clone(&self.mat),
             })
         } else {
             None
-        }
+        };
     }
 }

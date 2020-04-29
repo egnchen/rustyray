@@ -45,3 +45,5 @@ Main binary produces a picture of lots of random spheres like the one in the boo
 Typically it takes 1~3 minutes to produce the result(~1min 30s on my Core-i5 machine). Here is an example:
 
 ![](example.png)
+
+(Configuration: picture size 750*500, sample per pixel = 64, aperture size = 0.05)

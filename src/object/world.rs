@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::object::HitRecord;
 use crate::utils::Ray;
@@ -7,14 +7,14 @@ use crate::utils::Ray;
 use super::Hittable;
 
 pub struct World {
-    hittable_list: Vec<Rc<RefCell<dyn Hittable>>>,
+    hittable_list: Vec<Arc<RefCell<dyn Hittable>>>,
 }
 
 impl World {
     pub fn new() -> World { World { hittable_list: vec![] } }
 
-    pub fn add_hittable(&mut self, h: &Rc<RefCell<dyn Hittable>>) {
-        self.hittable_list.push(Rc::clone(&h));
+    pub fn add_hittable(&mut self, h: &Arc<RefCell<dyn Hittable>>) {
+        self.hittable_list.push(Arc::clone(&h));
     }
     pub fn clear(&mut self) {
         self.hittable_list.clear();

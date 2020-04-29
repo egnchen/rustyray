@@ -3,16 +3,13 @@ use std::cell::RefCell;
 use indicatif::ProgressBar;
 use num_traits::float::FloatCore;
 use rand::{Rng, thread_rng};
+use rand::distributions::{Distribution, Uniform};
 
 use crate::io::{Color, Picture};
 use crate::object::{Hittable, World};
-use crate::render::{Camera, GammaFilter};
+use crate::render::{Camera, GammaFilter, Renderer};
 use crate::render::filter::Filter;
 use crate::utils::Ray;
-
-pub trait Renderer {
-    fn render(&self) -> Result<Picture, &'static str>;
-}
 
 pub struct DefaultRenderer {
     width: usize,
@@ -85,12 +82,18 @@ impl Renderer for DefaultRenderer {
         let mut rng = thread_rng();
         let mut p = Picture::new(self.width, self.height);
         let pb = ProgressBar::new(self.height as u64);
+        println!("Configuration: Picture size {} * {}, sample = {}, recursion depth = {}",
+                 self.width, self.height, self.sample_per_unit, self.recursion_depth);
+        let d1 = Uniform::from(0.0..(1.0 / self.height as f64));
+        let d2 = Uniform::from(0.0..(1.0 / self.width as f64));
         for i in 0..self.height {
             for j in 0..self.width {
                 let mut c: Color = Color::default();
+                let bv = (self.height - i - 1) as f64 / self.height as f64;
+                let bu = j as f64 / self.width as f64;
                 for _k in 0..self.sample_per_unit {
-                    let v = (rng.gen::<f64>() + (self.height - i - 1) as f64) / self.height as f64;
-                    let u = (rng.gen::<f64>() + j as f64) / self.width as f64;
+                    let v = bv + d1.sample(&mut rng);
+                    let u = bu + d2.sample(&mut rng);
                     c += self.ray_color(cam.get_ray(u, v));
                 }
                 c /= self.sample_per_unit as f64;

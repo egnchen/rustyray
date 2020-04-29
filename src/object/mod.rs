@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::fmt::{Display, Formatter, Result};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub use material::LambertianDiffuse;
 pub use material::Metal;
@@ -40,7 +40,7 @@ pub struct HitRecord {
     pub t: f64,
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
-    pub mat: Rc<RefCell<dyn Material>>,
+    pub mat: Arc<RefCell<dyn Material>>,
 }
 
 impl Display for HitRecord {

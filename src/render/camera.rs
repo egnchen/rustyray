@@ -1,4 +1,5 @@
 use rand::{Rng, thread_rng};
+use rand::distributions::{Distribution, Uniform};
 
 use crate::utils::{Ray, Vec3};
 
@@ -35,13 +36,18 @@ impl Camera {
         }
     }
 
-    fn get_rand_unit_disk() -> Vec3<f64> {
-        let theta = thread_rng().gen_range(0.0, 2.0 * std::f64::consts::PI);
-        return Vec3(theta.cos(), theta.sin(), 0.0);
+    fn get_rand_in_unit_disk() -> Vec3<f64> {
+        let mut rng = thread_rng();
+        loop {
+            let p = Vec3(rng.gen_range(-1.0, 1.0), rng.gen_range(-1.0, 1.0), 0.0);
+            if p.length_square() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
-        let r = Self::get_rand_unit_disk() * self.lens_radius;
+        let r = Self::get_rand_in_unit_disk() * self.lens_radius;
         let offset = self.u * r.x() + self.v * r.y();
         Ray {
             orig: self.origin + offset,
