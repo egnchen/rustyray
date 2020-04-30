@@ -9,7 +9,7 @@ use crate::utils::{Ray, Vec3};
 pub struct Sphere {
     pub center: Vec3<f64>,
     pub radius: f64,
-    pub mat: Arc<RefCell<dyn Material>>,
+    pub mat: Arc<dyn Material>,
 }
 
 /// calculate if a ray will hit a sphere

@@ -27,7 +27,9 @@ fn rand_unit_vector() -> Vec3<f64> {
 }
 
 impl Material for LambertianDiffuse {
-    fn get_type(&self) -> &'static str { "LambertianDiffuse" }
+    fn get_type(&self) -> &'static str {
+        "LambertianDiffuse"
+    }
     fn scatter(&self, _r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         Some(FilteredRay {
             attenuation: self.albedo,
@@ -47,7 +49,10 @@ pub struct Metal {
 impl Metal {
     pub fn new(fuzziness: f64, albedo: Vec3<f64>) -> Metal {
         if fuzziness > 1.0 {
-            return Metal { fuzziness: 1.0, albedo };
+            return Metal {
+                fuzziness: 1.0,
+                albedo,
+            };
         } else {
             return Metal { fuzziness, albedo };
         }
@@ -55,10 +60,12 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn get_type(&self) -> &'static str { "Metal" }
+    fn get_type(&self) -> &'static str {
+        "Metal"
+    }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
-        let reflect_dir = r.direction() - h.normal * (2.0 * r.direction().dot(h.normal)) +
-            rand_unit_vector() * self.fuzziness;
+        let reflect_dir = r.direction() - h.normal * (2.0 * r.direction().dot(h.normal))
+            + rand_unit_vector() * self.fuzziness;
         return if reflect_dir.dot(h.normal) > 0.0 {
             Some(FilteredRay {
                 attenuation: self.albedo,
@@ -100,7 +107,9 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn get_type(&self) -> &'static str { "Dielectric" }
+    fn get_type(&self) -> &'static str {
+        "Dielectric"
+    }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         let er = match h.f {
             Face::Inward => self.eta_inv,
@@ -112,7 +121,7 @@ impl Material for Dielectric {
         // There's something not right about refraction rate...
         // ignore it for now
         let rnd: f64 = thread_rng().gen();
-        let dir = if sin_theta * er > 1.0  || rnd < self.schlick(cos_theta) {
+        let dir = if sin_theta * er > 1.0 || rnd < self.schlick(cos_theta) {
             // reflect
             ru - h.normal * (2.0 * cos_theta)
         } else {
@@ -123,10 +132,7 @@ impl Material for Dielectric {
         };
         Some(FilteredRay {
             attenuation: self.albedo,
-            scattered: Ray {
-                orig: h.p,
-                dir,
-            },
+            scattered: Ray { orig: h.p, dir },
         })
     }
 }

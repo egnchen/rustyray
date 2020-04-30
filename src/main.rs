@@ -1,30 +1,35 @@
-use std::cell::{Ref, RefCell};
-use std::sync::Arc;
-use std::time;
+use std::sync::{Arc, RwLock};
 
 use rand::{Rng, thread_rng};
 
 use ray_tracer::object::{Hittable, Sphere, World};
 use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
 use ray_tracer::render::{Camera, Renderer};
-use ray_tracer::render::default_renderer::DefaultRenderer;
+use ray_tracer::render::DefaultRenderer;
 use ray_tracer::utils::Vec3;
 
 /// initialize camera with default parameters
 fn init_camera() -> Camera {
     let look_from = Vec3(13.0, 2.0, 4.0);
     let look_at = Vec3(0.0, 0.0, 0.0);
-    Camera::look_from(look_from, look_at, Vec3(0.0, 1.0, 0.0),
-                      20.0, 1.5, 0.1, (look_at - look_from).length())
+    Camera::look_from(
+        look_from,
+        look_at,
+        Vec3(0.0, 1.0, 0.0),
+        20.0,
+        1.5,
+        0.1,
+        (look_at - look_from).length(),
+    )
 }
 
 /// helper functions to initialize Arc<RefCell<T>>
-fn make_material(a: impl Material + 'static) -> Arc<RefCell<dyn Material>> {
-    Arc::new(RefCell::new(a))
+fn make_material(a: impl Material + 'static) -> Arc<dyn Material> {
+    Arc::new(RwLock::new(a))
 }
 
-fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<RefCell<dyn Material>>) -> Arc<RefCell<dyn Hittable>> {
-    Arc::new(RefCell::new(Sphere {
+fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<dyn Material>) -> Arc<dyn Hittable> {
+    Arc::new(RwLock::new(Sphere {
         center,
         radius,
         mat: Arc::clone(mat),
@@ -35,7 +40,9 @@ fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<RefCell<dyn Material>>)
 fn init_world() -> World {
     let mut world = World::new();
 
-    let mat_ground = make_material(LambertianDiffuse { albedo: Vec3(0.7, 0.7, 0.7) });
+    let mat_ground = make_material(LambertianDiffuse {
+        albedo: Vec3(0.7, 0.7, 0.7),
+    });
     let sphere_ground = make_sphere(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
     world.add_hittable(&sphere_ground);
 
@@ -43,16 +50,20 @@ fn init_world() -> World {
     for i in -5..=10 {
         for j in -4..=4 {
             if j == 0 {
-                continue
+                continue;
             }
-            let center = Vec3(i as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
-                              0.25,
-                              j as f64 * 1.2 + rng.gen_range(-0.5, 0.5));
+            let center = Vec3(
+                i as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
+                0.25,
+                j as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
+            );
             let rand = rng.gen::<f64>();
             let m = if rand < 0.65 {
-                make_material(LambertianDiffuse { albedo: Vec3::random(0.0, 1.0) })
+                make_material(LambertianDiffuse {
+                    albedo: Vec3::random(0.0, 1.0),
+                })
             } else if rand < 0.9 {
-                make_material( Metal{
+                make_material(Metal {
                     fuzziness: rng.gen_range(0.0, 0.5),
                     albedo: Vec3::random(0.5, 1.0),
                 })
@@ -65,9 +76,11 @@ fn init_world() -> World {
     }
 
     // add three giant balls!
-    let m1 = make_material(LambertianDiffuse { albedo: Vec3::random(0.0, 1.0) });
+    let m1 = make_material(LambertianDiffuse {
+        albedo: Vec3::random(0.0, 1.0),
+    });
     let m2 = make_material(Dielectric::new(1.33, Vec3::one()));
-    let m3  = make_material(Metal {
+    let m3 = make_material(Metal {
         fuzziness: 0.1,
         albedo: Vec3(0.7, 0.6, 0.5),
     });
@@ -91,10 +104,9 @@ fn main() {
     r.set_world(init_world());
     r.set_pixel_sample(64);
 
-    let t = time::SystemTime::now();
-    let p = r.render().unwrap_or_else(|s| { panic!("Render failed, {}", s) });
-    println!("Finished, time = {:?}.",
-             time::SystemTime::now().duration_since(t).unwrap());
+    let p = r
+        .render()
+        .unwrap_or_else(|s| panic!("Render failed, {}", s));
     println!("Writing to out.png...");
     p.write_to_png("out.png");
 }

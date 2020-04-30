@@ -403,6 +403,7 @@ dependencies = [
  "image",
  "indicatif",
  "num-traits",
+ "num_cpus",
  "rand",
 ]
 

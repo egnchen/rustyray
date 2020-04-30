@@ -1,5 +1,6 @@
+pub use ray::Ray;
+pub use vec::Vec3;
+
 pub mod ray;
 pub mod vec;
 
-pub use vec::Vec3;
-pub use ray::Ray;

@@ -15,8 +15,15 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn look_from(origin: Vec3<f64>, look_at: Vec3<f64>, v_up: Vec3<f64>,
-                     vfov: f64, aspect: f64, aperture: f64, focus_dist: f64) -> Camera {
+    pub fn look_from(
+        origin: Vec3<f64>,
+        look_at: Vec3<f64>,
+        v_up: Vec3<f64>,
+        vfov: f64,
+        aspect: f64,
+        aperture: f64,
+        focus_dist: f64,
+    ) -> Camera {
         let theta = vfov * std::f64::consts::PI / 180.0;
         let half_height = (theta / 2.0).tan();
         let half_width = half_height * aspect;

@@ -1,6 +1,5 @@
-use std::cell::RefCell;
 use std::fmt::{Display, Formatter, Result};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 pub use material::LambertianDiffuse;
 pub use material::Metal;
@@ -10,19 +9,20 @@ pub use world::World;
 use crate::object::material::Material;
 use crate::utils::{Ray, Vec3};
 
+pub mod material;
 pub mod sphere;
 pub mod world;
-pub mod material;
 
-#[derive(Debug)]
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum Face {
     Inward,
     Outward,
 }
 
 impl Default for Face {
-    fn default() -> Self { Face::Inward }
+    fn default() -> Self {
+        Face::Inward
+    }
 }
 
 impl Face {
@@ -40,12 +40,16 @@ pub struct HitRecord {
     pub t: f64,
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
-    pub mat: Arc<RefCell<dyn Material>>,
+    pub mat: Arc<dyn Material>,
 }
 
 impl Display for HitRecord {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{:?} t={} p={} normal={}", self.f, self.t, self.p, self.normal)
+        write!(
+            f,
+            "{:?} t={} p={} normal={}",
+            self.f, self.t, self.p, self.normal
+        )
     }
 }
 

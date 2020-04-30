@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::time;
 
 use indicatif::ProgressBar;
 use num_traits::float::FloatCore;
@@ -42,11 +43,21 @@ impl DefaultRenderer {
         self.world = Some(world);
     }
 
-    pub fn set_pixel_sample(&mut self, sample: usize) { self.sample_per_unit = sample; }
+    pub fn set_pixel_sample(&mut self, sample: usize) {
+        self.sample_per_unit = sample;
+    }
 
     fn ray_color(&self, r: Ray) -> Color {
-        const LOW: Color = Color { 0: 1.0, 1: 1.0, 2: 1.0 };
-        const HIGH: Color = Color { 0: 0.5, 1: 0.7, 2: 1.0 };
+        const LOW: Color = Color {
+            0: 1.0,
+            1: 1.0,
+            2: 1.0,
+        };
+        const HIGH: Color = Color {
+            0: 0.5,
+            1: 0.7,
+            2: 1.0,
+        };
 
         // don't do tail-recursion :)
         // calculate
@@ -56,7 +67,7 @@ impl DefaultRenderer {
         for _i in 0..self.recursion_depth {
             if let Some(h) = w.hit(&r, 0.001, f64::infinity()) {
                 // hit something
-                if let Some(f) = RefCell::borrow(&h.mat).scatter(&r, &h) {
+                if let Some(f) = h.mat.scatter(&r, &h) {
                     ret *= f.attenuation;
                     r = f.scattered;
                 } else {
@@ -82,8 +93,11 @@ impl Renderer for DefaultRenderer {
         let mut rng = thread_rng();
         let mut p = Picture::new(self.width, self.height);
         let pb = ProgressBar::new(self.height as u64);
-        println!("Configuration: Picture size {} * {}, sample = {}, recursion depth = {}",
-                 self.width, self.height, self.sample_per_unit, self.recursion_depth);
+        println!(
+            "Configuration: Picture size = {} * {}, sample = {}, recursion depth = {}",
+            self.width, self.height, self.sample_per_unit, self.recursion_depth
+        );
+        let t = time::SystemTime::now();
         let d1 = Uniform::from(0.0..(1.0 / self.height as f64));
         let d2 = Uniform::from(0.0..(1.0 / self.width as f64));
         for i in 0..self.height {
@@ -101,11 +115,16 @@ impl Renderer for DefaultRenderer {
             }
             pb.inc(1);
         }
+        pb.finish_and_clear();
         if self.use_gamma_correction {
+            println!("Doing gamma correction");
             let filter = GammaFilter { gamma: 2.0 };
             filter.filter(&mut p);
         }
-        pb.finish_and_clear();
+        println!(
+            "Finished, time = {:?}.",
+            time::SystemTime::now().duration_since(t).unwrap()
+        );
         Ok(p)
     }
 }

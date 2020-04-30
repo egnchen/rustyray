@@ -8,9 +8,7 @@ use num_traits::{Num, NumCast, NumOps};
 use rand::{Rng, thread_rng};
 use rand::distributions::uniform::SampleUniform;
 
-#[derive(Debug)]
-#[derive(Copy, Clone)]
-#[derive(Default)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Vec3<T>(pub T, pub T, pub T);
 
 impl<T: PartialEq> PartialEq for Vec3<T> {
@@ -130,7 +128,7 @@ impl<T: Neg> Neg for Vec3<T> {
 }
 
 impl<T: Display> Display for Vec3<T> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result<> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {}, {})", self.0, self.1, self.2)
     }
 }
@@ -147,17 +145,31 @@ impl<T: NumCast> Vec3<T> {
 }
 
 impl<T: Num + Copy> Vec3<T> {
-    pub fn zero() -> Vec3<T> { Vec3(T::zero(), T::zero(), T::zero()) }
-    pub fn one() -> Vec3<T> { Vec3(T::one(), T::one(), T::one()) }
-    pub fn x(&self) -> T { self.0 }
-    pub fn y(&self) -> T { self.1 }
-    pub fn z(&self) -> T { self.2 }
+    pub fn zero() -> Vec3<T> {
+        Vec3(T::zero(), T::zero(), T::zero())
+    }
+    pub fn one() -> Vec3<T> {
+        Vec3(T::one(), T::one(), T::one())
+    }
+    pub fn x(&self) -> T {
+        self.0
+    }
+    pub fn y(&self) -> T {
+        self.1
+    }
+    pub fn z(&self) -> T {
+        self.2
+    }
 }
 
 impl<T: Copy + SampleUniform> Vec3<T> {
     pub fn random(min: T, max: T) -> Vec3<T> {
         let mut rng = thread_rng();
-        Vec3(rng.gen_range(min, max), rng.gen_range(min, max), rng.gen_range(min, max))
+        Vec3(
+            rng.gen_range(min, max),
+            rng.gen_range(min, max),
+            rng.gen_range(min, max),
+        )
     }
 }
 
@@ -168,7 +180,9 @@ impl<T: NumOps + NumCast + Copy> Vec3<T> {
     pub fn length(&self) -> f64 {
         self.length_square().to_f64().unwrap().sqrt()
     }
-    pub fn unit_vector(&self) -> Vec3<f64> { self.to_f64() / self.length() }
+    pub fn unit_vector(&self) -> Vec3<f64> {
+        self.to_f64() / self.length()
+    }
 }
 
 /// various products
@@ -177,7 +191,9 @@ impl<T: Num + Copy> Vec3<T> {
         self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
     }
 
-    pub fn ele_mul(&self, rhs: Self) -> Vec3<T> { *self * rhs }
+    pub fn ele_mul(&self, rhs: Self) -> Vec3<T> {
+        *self * rhs
+    }
 
     pub fn cross(&self, rhs: Self) -> Vec3<T> {
         Vec3(
