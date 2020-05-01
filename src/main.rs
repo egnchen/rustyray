@@ -1,10 +1,8 @@
-use std::sync::{Arc, RwLock};
+use rand::{thread_rng, Rng};
 
-use rand::{Rng, thread_rng};
-
-use ray_tracer::object::{Hittable, HittableObject, make_material_object, make_sphere_object, MaterialObject, Sphere, World};
-use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
-use ray_tracer::render::{DefaultRenderer, MultiRenderer};
+use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Metal};
+use ray_tracer::object::{make_material_object, make_sphere_object, World};
+use ray_tracer::render::MultiRenderer;
 use ray_tracer::render::{Camera, Renderer};
 use ray_tracer::utils::Vec3;
 

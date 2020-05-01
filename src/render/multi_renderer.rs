@@ -1,18 +1,14 @@
-use std::borrow::{Borrow, BorrowMut};
-use std::cell::RefCell;
-use std::cmp::min;
-use std::sync::{Arc, mpsc, Mutex};
-use std::thread;
+use std::sync::{mpsc, Arc};
 use std::time;
 
 use num_traits::float::FloatCore;
-use rand::distributions::{Distribution, Gamma, Uniform};
+use rand::distributions::{Distribution, Uniform};
 use rand::thread_rng;
 
 use crate::io::{Color, Picture};
 use crate::object::{Hittable, World};
-use crate::render::{Camera, GammaFilter, Renderer};
 use crate::render::filter::Filter;
+use crate::render::{Camera, GammaFilter, Renderer};
 use crate::utils::Ray;
 
 /// multi-threaded renderer
@@ -98,9 +94,13 @@ impl Renderer for MultiRenderer {
 
         // use scoped thread here
         let result = crossbeam::thread::scope(|s| -> Picture {
-            println!("Initializing threads... Thread count = {}", self.thread_count);
-            let mut p = Picture::new(self.width, self.height);
-            let sample_per_thread = (self.sample_per_unit + self.thread_count - 1) / self.thread_count;
+            println!(
+                "Initializing threads... Thread count = {}",
+                self.thread_count
+            );
+            let _p = Picture::new(self.width, self.height);
+            let sample_per_thread =
+                (self.sample_per_unit + self.thread_count - 1) / self.thread_count;
             let rx = {
                 let (tx, rx) = mpsc::channel();
                 // divide the job by sample count per pixel
@@ -122,24 +122,30 @@ impl Renderer for MultiRenderer {
                                 for _k in 0..sample_per_thread {
                                     let v = bv + d1.sample(&mut rng);
                                     let u = bu + d2.sample(&mut rng);
-                                    c += MultiRenderer::ray_color(world, cam.get_ray(u, v), self.recursion_depth);
+                                    c += MultiRenderer::ray_color(
+                                        world,
+                                        cam.get_ray(u, v),
+                                        self.recursion_depth,
+                                    );
                                 }
                                 buffer.data[i * self.width + j] = c;
                             }
                         }
-                        txc.send(buffer);
+                        txc.send(buffer).expect("Buffer exchanging failed.");
                         println!("Thread {} exit.", thread_id);
                     });
                 }
                 rx
-            };   // tx at this point should be invalidated
+            }; // tx at this point should be invalidated
             let mut buffer = Picture::new(self.width, self.height);
             for buf in rx {
-                for (mut u, v) in buffer.data.iter_mut().zip(buf.data.iter()) {
+                for (u, v) in buffer.data.iter_mut().zip(buf.data.iter()) {
                     *u += *v;
                 }
             }
-            for u in &mut buffer.data { *u /= self.sample_per_unit as f64; }
+            for u in &mut buffer.data {
+                *u /= self.sample_per_unit as f64;
+            }
             buffer
         });
         if result.is_err() {
@@ -150,7 +156,10 @@ impl Renderer for MultiRenderer {
             let filter = GammaFilter { gamma: 2.0 };
             filter.filter(&mut buffer);
         }
-        println!("Done, time elapsed = {:?}", time::SystemTime::now().duration_since(t).unwrap());
+        println!(
+            "Done, time elapsed = {:?}",
+            time::SystemTime::now().duration_since(t).unwrap()
+        );
         Ok(buffer)
     }
 }

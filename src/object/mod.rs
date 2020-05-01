@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter, Result};
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 pub use material::LambertianDiffuse;
 pub use material::Metal;

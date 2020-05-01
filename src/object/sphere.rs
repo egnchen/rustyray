@@ -1,9 +1,7 @@
-use std::cell::RefCell;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
-use crate::object::{HitRecord, Hittable, MaterialObject};
 use crate::object::Face;
-use crate::object::material::Material;
+use crate::object::{HitRecord, Hittable, MaterialObject};
 use crate::utils::{Ray, Vec3};
 
 pub struct Sphere {

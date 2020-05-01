@@ -1,15 +1,14 @@
-use std::cell::RefCell;
 use std::time;
 
 use indicatif::ProgressBar;
 use num_traits::float::FloatCore;
-use rand::{Rng, thread_rng};
 use rand::distributions::{Distribution, Uniform};
+use rand::thread_rng;
 
 use crate::io::{Color, Picture};
 use crate::object::{Hittable, World};
-use crate::render::{Camera, GammaFilter, Renderer};
 use crate::render::filter::Filter;
+use crate::render::{Camera, GammaFilter, Renderer};
 use crate::utils::Ray;
 
 pub struct DefaultRenderer {

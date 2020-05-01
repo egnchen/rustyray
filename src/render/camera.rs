@@ -1,5 +1,4 @@
-use rand::{Rng, thread_rng};
-use rand::distributions::{Distribution, Uniform};
+use rand::{thread_rng, Rng};
 
 use crate::utils::{Ray, Vec3};
 

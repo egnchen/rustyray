@@ -5,8 +5,8 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::{Num, NumCast, NumOps};
-use rand::{Rng, thread_rng};
 use rand::distributions::uniform::SampleUniform;
+use rand::{thread_rng, Rng};
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Vec3<T>(pub T, pub T, pub T);

@@ -1,5 +1,4 @@
-use std::borrow::Borrow;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 use crate::io::Color;
 use crate::object::{HitRecord, Hittable, HittableObject};
@@ -29,7 +28,7 @@ impl World {
         self.hittable_list.push(Arc::clone(&h));
     }
 
-    pub fn get_skybox(&self) -> &SkyBox {
+    pub fn get_skybox(&self) -> &dyn SkyBox {
         self.sky_box.as_ref()
     }
 
