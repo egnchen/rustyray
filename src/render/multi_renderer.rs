@@ -40,7 +40,7 @@ impl MultiRenderer {
             sample_per_unit: 128,
             recursion_depth: 16,
             use_gamma_correction: true,
-            thread_count: 1,
+            thread_count: num_cpus::get(),
         }
     }
 
@@ -76,7 +76,7 @@ impl MultiRenderer {
         for _i in 0..depth {
             if let Some(h) = world.hit(&r, 0.001, f64::infinity()) {
                 // hit something
-                if let Some(f) = h.mat.read().unwrap().scatter(&r, &h) {
+                if let Some(f) = h.mat.scatter(&r, &h) {
                     ret *= f.attenuation;
                     r = f.scattered;
                 } else {
@@ -112,45 +112,48 @@ impl Renderer for MultiRenderer {
         let result = crossbeam::thread::scope(|s| -> Picture {
             println!("Initializing threads... Thread count = {}", self.thread_count);
             let mut p = Picture::new(self.width, self.height);
+
             let rx = {
                 let (tx, rx) = mpsc::channel();
-                let block_height = (self.height + self.thread_count) / self.thread_count;
-                let mut offset: usize = 0;
+                let block_height = self.height / self.thread_count / 5;
                 // divide job into blocks
-                while offset < self.height {
-                    let hmax = min(block_height, self.height - offset);
+                for thread_id in 0..self.thread_count {
+                    let mut offset = thread_id * block_height;
                     let txc = tx.clone();
                     s.spawn(move |_| {
-                        let mut buffer = Box::new(Picture::new(self.width, hmax));
-                        let p: &mut Picture = buffer.borrow_mut();
+                        println!("Thread {} initiated", thread_id);
                         let mut rng = thread_rng();
                         let world = Option::as_ref(&self.world).unwrap();
                         let cam = Option::as_ref(&self.camera).unwrap();
                         let d1 = Uniform::from(0.0..(1.0 / self.height as f64));
                         let d2 = Uniform::from(0.0..(1.0 / self.width as f64));
-                        println!("Thread initiated, calculating offset = {}, hmax = {}", offset, hmax);
-                        for i in 0..hmax {
-                            for j in 0..self.width {
-                                let mut c: Color = Color::default();
-                                let bv = (self.height - i - offset - 1) as f64 / self.height as f64;
-                                let bu = j as f64 / self.width as f64;
-                                for _k in 0..self.sample_per_unit {
-                                    let v = bv + d1.sample(&mut rng);
-                                    let u = bu + d2.sample(&mut rng);
-                                    c += MultiRenderer::ray_color(world, cam.get_ray(u, v), self.recursion_depth);
+                        // offset is copied into this closure
+                        while offset < self.height {
+                            let height = min(block_height, self.height - offset);
+                            let mut buffer = Box::new(Picture::new(self.width, height));
+                            for i in 0..height {
+                                for j in 0..self.width {
+                                    let mut c: Color = Color::default();
+                                    let bv = (self.height - i - offset - 1) as f64 / self.height as f64;
+                                    let bu = j as f64 / self.width as f64;
+                                    for _k in 0..self.sample_per_unit {
+                                        let v = bv + d1.sample(&mut rng);
+                                        let u = bu + d2.sample(&mut rng);
+                                        c += MultiRenderer::ray_color(world, cam.get_ray(u, v), self.recursion_depth);
+                                    }
+                                    c /= self.sample_per_unit as f64;
+                                    buffer.data[i * self.width + j] = c;
                                 }
-                                c /= self.sample_per_unit as f64;
-                                p.data[i * self.width + j] = c;
                             }
+                            if self.use_gamma_correction {
+                                let filter = GammaFilter { gamma: 2.0 };
+                                filter.filter(buffer.borrow_mut());
+                            }
+                            txc.send(PictureBuffer(offset, height, buffer)).unwrap();
+                            offset += self.thread_count * block_height;
                         }
-                        if self.use_gamma_correction {
-                            let filter = GammaFilter { gamma: 2.0 };
-                            filter.filter(p);
-                        }
-                        println!("Gamma correction done, sending back buffer...");
-                        txc.send(PictureBuffer(offset, hmax, buffer)).unwrap();
+                        println!("Thread {} exit.", thread_id);
                     });
-                    offset += hmax;
                 }
                 rx
             };   // tx at this point should be invalidated
@@ -168,7 +171,7 @@ impl Renderer for MultiRenderer {
             }
             p
         });
-        println!("Done, time elapsed = {:?}", time::SystemTime::now().duration_since(t));
+        println!("Done, time elapsed = {:?}", time::SystemTime::now().duration_since(t).unwrap());
         if result.is_ok() {
             Ok(result.unwrap())
         } else {

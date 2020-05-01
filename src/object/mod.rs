@@ -40,7 +40,7 @@ pub struct HitRecord {
     pub t: f64,
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
-    pub mat: Arc<RwLock<dyn Material + Send + Sync>>,
+    pub mat: Arc<dyn Material + Send + Sync>,
 }
 
 impl Display for HitRecord {
@@ -55,4 +55,19 @@ impl Display for HitRecord {
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+}
+
+pub type HittableObject = Arc<dyn Hittable + Send + Sync>;
+pub type MaterialObject = Arc<dyn Material + Send + Sync>;
+
+pub fn make_material_object(a: impl Material + Send + Sync + 'static) -> MaterialObject {
+    Arc::new(a)
+}
+
+pub fn make_sphere_object(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> HittableObject {
+    Arc::new(Sphere {
+        center,
+        radius,
+        mat: Arc::clone(mat),
+    })
 }

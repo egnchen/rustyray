@@ -118,8 +118,6 @@ impl Material for Dielectric {
         let ru = r.direction().unit_vector();
         let cos_theta = -ru.dot(h.normal);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-        // There's something not right about refraction rate...
-        // ignore it for now
         let rnd: f64 = thread_rng().gen();
         let dir = if sin_theta * er > 1.0 || rnd < self.schlick(cos_theta) {
             // reflect

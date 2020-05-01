@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use rand::{Rng, thread_rng};
 
-use ray_tracer::object::{Hittable, Sphere, World};
+use ray_tracer::object::{Hittable, HittableObject, make_material_object, make_sphere_object, MaterialObject, Sphere, World};
 use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
 use ray_tracer::render::{DefaultRenderer, MultiRenderer};
 use ray_tracer::render::{Camera, Renderer};
@@ -23,26 +23,14 @@ fn init_camera() -> Camera {
     )
 }
 
-fn make_material(a: impl Material + Send + Sync + 'static) -> Arc<RwLock<dyn Material + Send + Sync>> {
-    Arc::new(RwLock::new(a))
-}
-
-fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<RwLock<dyn Material + Send + Sync>>) -> Arc<RwLock<dyn Hittable + Send + Sync>> {
-    Arc::new(RwLock::new(Sphere {
-        center,
-        radius,
-        mat: Arc::clone(mat),
-    }))
-}
-
 /// initialize the world, fill it with objects
 fn init_world() -> World {
     let mut world = World::new();
 
-    let mat_ground = make_material(LambertianDiffuse {
+    let mat_ground = make_material_object(LambertianDiffuse {
         albedo: Vec3(0.7, 0.7, 0.7),
     });
-    let sphere_ground = make_sphere(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
+    let sphere_ground = make_sphere_object(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
     world.add_hittable(&sphere_ground);
 
     let mut rng = thread_rng();
@@ -58,34 +46,34 @@ fn init_world() -> World {
             );
             let rand = rng.gen::<f64>();
             let m = if rand < 0.65 {
-                make_material(LambertianDiffuse {
+                make_material_object(LambertianDiffuse {
                     albedo: Vec3::random(0.0, 1.0),
                 })
             } else if rand < 0.9 {
-                make_material(Metal {
+                make_material_object(Metal {
                     fuzziness: rng.gen_range(0.0, 0.5),
                     albedo: Vec3::random(0.5, 1.0),
                 })
             } else {
-                make_material(Dielectric::new(1.33, Vec3::one()))
+                make_material_object(Dielectric::new(1.33, Vec3::one()))
             };
-            let b = make_sphere(center, 0.25, &m);
+            let b = make_sphere_object(center, 0.25, &m);
             world.add_hittable(&b);
         }
     }
 
     // add three giant balls!
-    let m1 = make_material(LambertianDiffuse {
+    let m1 = make_material_object(LambertianDiffuse {
         albedo: Vec3::random(0.0, 1.0),
     });
-    let m2 = make_material(Dielectric::new(1.33, Vec3::one()));
-    let m3 = make_material(Metal {
+    let m2 = make_material_object(Dielectric::new(1.33, Vec3::one()));
+    let m3 = make_material_object(Metal {
         fuzziness: 0.1,
         albedo: Vec3(0.7, 0.6, 0.5),
     });
-    let b1 = make_sphere(Vec3(-4.0, 1.0, 0.0), 1.0, &m1);
-    let b2 = make_sphere(Vec3(0.0, 1.0, 0.0), 1.0, &m2);
-    let b3 = make_sphere(Vec3(4.0, 1.0, 0.0), 1.0, &m3);
+    let b1 = make_sphere_object(Vec3(-4.0, 1.0, 0.0), 1.0, &m1);
+    let b2 = make_sphere_object(Vec3(0.0, 1.0, 0.0), 1.0, &m2);
+    let b3 = make_sphere_object(Vec3(4.0, 1.0, 0.0), 1.0, &m3);
     world.add_hittable(&b1);
     world.add_hittable(&b2);
     world.add_hittable(&b3);
