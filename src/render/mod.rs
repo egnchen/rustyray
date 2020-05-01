@@ -7,6 +7,7 @@ use crate::io::Picture;
 
 pub mod camera;
 pub mod filter;
+pub mod skybox;
 
 mod default_renderer;
 mod multi_renderer;

@@ -28,14 +28,14 @@ fn init_world() -> World {
     let mut world = World::new();
 
     let mat_ground = make_material_object(LambertianDiffuse {
-        albedo: Vec3(0.7, 0.7, 0.7),
+        albedo: Vec3(0.5, 0.5, 0.5),
     });
     let sphere_ground = make_sphere_object(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
     world.add_hittable(&sphere_ground);
 
     let mut rng = thread_rng();
-    for i in -5..=10 {
-        for j in -4..=4 {
+    for i in -11..=11 {
+        for j in -11..=11 {
             if j == 0 {
                 continue;
             }
@@ -47,7 +47,7 @@ fn init_world() -> World {
             let rand = rng.gen::<f64>();
             let m = if rand < 0.65 {
                 make_material_object(LambertianDiffuse {
-                    albedo: Vec3::random(0.0, 1.0),
+                    albedo: Vec3::random(0.0, 1.0) * Vec3::random(0.0, 1.0),
                 })
             } else if rand < 0.9 {
                 make_material_object(Metal {

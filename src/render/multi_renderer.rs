@@ -59,17 +59,6 @@ impl MultiRenderer {
 
     // essentially the same as DefaultRenderer here
     fn ray_color(world: &World, r: Ray, depth: usize) -> Color {
-        const LOW: Color = Color {
-            0: 1.0,
-            1: 1.0,
-            2: 1.0,
-        };
-        const HIGH: Color = Color {
-            0: 0.5,
-            1: 0.7,
-            2: 1.0,
-        };
-
         // don't do tail-recursion :)
         // calculate
         let mut r = r;
@@ -85,9 +74,7 @@ impl MultiRenderer {
                 }
             } else {
                 // sky box
-                let unit = r.direction().unit_vector();
-                let t = 0.5 * (unit.y() + 1.0);
-                return ret * (LOW * (1.0 - t) + HIGH * t);
+                return ret * world.get_skybox().get_color(r);
             }
         }
         Color::zero()
