@@ -19,7 +19,7 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Depth of field
 - [ ] Scene configuration
 - [ ] Material configuration
-- [ ] Multi-threaded rendering
+- [x] Multi-threaded rendering
 
 ## Running the program
 

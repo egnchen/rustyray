@@ -6,7 +6,7 @@ use std::thread;
 use std::time;
 
 use num_traits::float::FloatCore;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Distribution, Gamma, Uniform};
 use rand::thread_rng;
 
 use crate::io::{Color, Picture};
@@ -16,9 +16,6 @@ use crate::render::filter::Filter;
 use crate::utils::Ray;
 
 /// multi-threaded renderer
-
-struct PictureBuffer(usize, usize, Box<Picture>);
-
 pub struct MultiRenderer {
     width: usize,
     height: usize,
@@ -54,6 +51,10 @@ impl MultiRenderer {
 
     pub fn set_pixel_sample(&mut self, sample: usize) {
         self.sample_per_unit = sample;
+    }
+
+    pub fn set_thread_count(&mut self, thread_count: usize) {
+        self.thread_count = thread_count;
     }
 
     // essentially the same as DefaultRenderer here
@@ -112,13 +113,11 @@ impl Renderer for MultiRenderer {
         let result = crossbeam::thread::scope(|s| -> Picture {
             println!("Initializing threads... Thread count = {}", self.thread_count);
             let mut p = Picture::new(self.width, self.height);
-
+            let sample_per_thread = (self.sample_per_unit + self.thread_count - 1) / self.thread_count;
             let rx = {
                 let (tx, rx) = mpsc::channel();
-                let block_height = self.height / self.thread_count / 5;
-                // divide job into blocks
+                // divide the job by sample count per pixel
                 for thread_id in 0..self.thread_count {
-                    let mut offset = thread_id * block_height;
                     let txc = tx.clone();
                     s.spawn(move |_| {
                         println!("Thread {} initiated", thread_id);
@@ -127,55 +126,44 @@ impl Renderer for MultiRenderer {
                         let cam = Option::as_ref(&self.camera).unwrap();
                         let d1 = Uniform::from(0.0..(1.0 / self.height as f64));
                         let d2 = Uniform::from(0.0..(1.0 / self.width as f64));
-                        // offset is copied into this closure
-                        while offset < self.height {
-                            let height = min(block_height, self.height - offset);
-                            let mut buffer = Box::new(Picture::new(self.width, height));
-                            for i in 0..height {
-                                for j in 0..self.width {
-                                    let mut c: Color = Color::default();
-                                    let bv = (self.height - i - offset - 1) as f64 / self.height as f64;
-                                    let bu = j as f64 / self.width as f64;
-                                    for _k in 0..self.sample_per_unit {
-                                        let v = bv + d1.sample(&mut rng);
-                                        let u = bu + d2.sample(&mut rng);
-                                        c += MultiRenderer::ray_color(world, cam.get_ray(u, v), self.recursion_depth);
-                                    }
-                                    c /= self.sample_per_unit as f64;
-                                    buffer.data[i * self.width + j] = c;
+                        let mut buffer = Box::new(Picture::new(self.width, self.height));
+                        for i in 0..self.height {
+                            for j in 0..self.width {
+                                let mut c: Color = Color::default();
+                                let bv = (self.height - i - 1) as f64 / self.height as f64;
+                                let bu = j as f64 / self.width as f64;
+                                for _k in 0..sample_per_thread {
+                                    let v = bv + d1.sample(&mut rng);
+                                    let u = bu + d2.sample(&mut rng);
+                                    c += MultiRenderer::ray_color(world, cam.get_ray(u, v), self.recursion_depth);
                                 }
+                                buffer.data[i * self.width + j] = c;
                             }
-                            if self.use_gamma_correction {
-                                let filter = GammaFilter { gamma: 2.0 };
-                                filter.filter(buffer.borrow_mut());
-                            }
-                            txc.send(PictureBuffer(offset, height, buffer)).unwrap();
-                            offset += self.thread_count * block_height;
                         }
+                        txc.send(buffer);
                         println!("Thread {} exit.", thread_id);
                     });
                 }
                 rx
             };   // tx at this point should be invalidated
-            // receive buffers and copy them back
-            for buf in rx.iter() {
-                let offset = buf.0;
-                let hmax = buf.1;
-                println!("Received buffer, offset = {}, height = {}", offset, hmax);
-                let content = &buf.2;
-                for i in offset..(offset + hmax) {
-                    for j in 0..self.width {
-                        p.data[i * self.width + j] = content.data[(i - offset) * self.width + j];
-                    }
+            let mut buffer = Picture::new(self.width, self.height);
+            for buf in rx {
+                for (mut u, v) in buffer.data.iter_mut().zip(buf.data.iter()) {
+                    *u += *v;
                 }
             }
-            p
+            for u in &mut buffer.data { *u /= self.sample_per_unit as f64; }
+            buffer
         });
-        println!("Done, time elapsed = {:?}", time::SystemTime::now().duration_since(t).unwrap());
-        if result.is_ok() {
-            Ok(result.unwrap())
-        } else {
-            Err("Failed")
+        if result.is_err() {
+            return Err("Error occurred during multi-threaded rendering.");
         }
+        let mut buffer = result.unwrap();
+        if self.use_gamma_correction {
+            let filter = GammaFilter { gamma: 2.0 };
+            filter.filter(&mut buffer);
+        }
+        println!("Done, time elapsed = {:?}", time::SystemTime::now().duration_since(t).unwrap());
+        Ok(buffer)
     }
 }
