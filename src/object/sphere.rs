@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use crate::object::{HitRecord, Hittable};
 use crate::object::Face;
@@ -9,7 +9,7 @@ use crate::utils::{Ray, Vec3};
 pub struct Sphere {
     pub center: Vec3<f64>,
     pub radius: f64,
-    pub mat: Arc<dyn Material>,
+    pub mat: Arc<RwLock<dyn Material + Send + Sync>>,
 }
 
 /// calculate if a ray will hit a sphere

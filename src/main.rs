@@ -4,8 +4,8 @@ use rand::{Rng, thread_rng};
 
 use ray_tracer::object::{Hittable, Sphere, World};
 use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Material, Metal};
+use ray_tracer::render::{DefaultRenderer, MultiRenderer};
 use ray_tracer::render::{Camera, Renderer};
-use ray_tracer::render::DefaultRenderer;
 use ray_tracer::utils::Vec3;
 
 /// initialize camera with default parameters
@@ -23,12 +23,11 @@ fn init_camera() -> Camera {
     )
 }
 
-/// helper functions to initialize Arc<RefCell<T>>
-fn make_material(a: impl Material + 'static) -> Arc<dyn Material> {
+fn make_material(a: impl Material + Send + Sync + 'static) -> Arc<RwLock<dyn Material + Send + Sync>> {
     Arc::new(RwLock::new(a))
 }
 
-fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<dyn Material>) -> Arc<dyn Hittable> {
+fn make_sphere(center: Vec3<f64>, radius: f64, mat: &Arc<RwLock<dyn Material + Send + Sync>>) -> Arc<RwLock<dyn Hittable + Send + Sync>> {
     Arc::new(RwLock::new(Sphere {
         center,
         radius,
@@ -99,7 +98,8 @@ fn main() {
     let height = 500;
 
     // set up the renderer and fire it up
-    let mut r = DefaultRenderer::new(width, height);
+    // let mut r = DefaultRenderer::new(width, height);
+    let mut r = MultiRenderer::new(width, height);
     r.set_camera(init_camera());
     r.set_world(init_world());
     r.set_pixel_sample(64);

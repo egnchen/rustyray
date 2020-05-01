@@ -7,7 +7,7 @@ use crate::utils::Ray;
 use super::Hittable;
 
 pub struct World {
-    hittable_list: Vec<Arc<dyn Hittable + Send + Sync>>,
+    hittable_list: Vec<Arc<RwLock<dyn Hittable + Send + Sync>>>,
 }
 
 impl World {
@@ -17,7 +17,7 @@ impl World {
         }
     }
 
-    pub fn add_hittable(&mut self, h: &Arc<dyn Hittable + Send + Sync>) {
+    pub fn add_hittable(&mut self, h: &Arc<RwLock<dyn Hittable + Send + Sync>>) {
         self.hittable_list.push(Arc::clone(&h));
     }
     pub fn clear(&mut self) {
@@ -30,7 +30,7 @@ impl Hittable for World {
         let mut cur_closest = t_max;
         let mut ret: Option<HitRecord> = None;
         for object in self.hittable_list.iter() {
-            if let Some(cur) = object.hit(r, t_min, cur_closest) {
+            if let Some(cur) = object.read().unwrap().hit(r, t_min, cur_closest) {
                 if cur.t < cur_closest {
                     cur_closest = cur.t;
                     ret = Some(cur);

@@ -67,7 +67,7 @@ impl DefaultRenderer {
         for _i in 0..self.recursion_depth {
             if let Some(h) = w.hit(&r, 0.001, f64::infinity()) {
                 // hit something
-                if let Some(f) = h.mat.scatter(&r, &h) {
+                if let Some(f) = h.mat.read().unwrap().scatter(&r, &h) {
                     ret *= f.attenuation;
                     r = f.scattered;
                 } else {

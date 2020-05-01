@@ -1,7 +1,7 @@
 [package]
 name = "ray_tracer"
 version = "0.1.0"
-authors = ["12295"]
+authors = ["eyek"]
 edition = "2018"
 
 [profile.dev]
@@ -13,3 +13,4 @@ rand = "0.7"
 image = "0.23"
 indicatif = "0.14"
 num_cpus = "1.10"
+crossbeam = "0.7"

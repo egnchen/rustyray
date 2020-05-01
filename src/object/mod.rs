@@ -40,7 +40,7 @@ pub struct HitRecord {
     pub t: f64,
     pub p: Vec3<f64>,
     pub normal: Vec3<f64>,
-    pub mat: Arc<dyn Material>,
+    pub mat: Arc<RwLock<dyn Material + Send + Sync>>,
 }
 
 impl Display for HitRecord {
