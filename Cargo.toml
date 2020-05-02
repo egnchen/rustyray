@@ -14,3 +14,10 @@ image = "0.23"
 indicatif = "0.14"
 num_cpus = "1.10"
 crossbeam = "0.7"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "basic_benchmark"
+harness = false
