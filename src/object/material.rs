@@ -30,12 +30,13 @@ impl Material for LambertianDiffuse {
     fn get_type(&self) -> &'static str {
         "LambertianDiffuse"
     }
-    fn scatter(&self, _r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
+    fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         Some(FilteredRay {
             attenuation: self.albedo,
             scattered: Ray {
                 orig: h.p,
                 dir: h.normal + rand_unit_vector(),
+                t: r.time(),
             },
         })
     }
@@ -72,6 +73,7 @@ impl Material for Metal {
                 scattered: Ray {
                     orig: h.p,
                     dir: reflect_dir,
+                    t: r.time(),
                 },
             })
         } else {
@@ -130,7 +132,11 @@ impl Material for Dielectric {
         };
         Some(FilteredRay {
             attenuation: self.albedo,
-            scattered: Ray { orig: h.p, dir },
+            scattered: Ray {
+                orig: h.p,
+                dir,
+                t: r.time(),
+            },
         })
     }
 }

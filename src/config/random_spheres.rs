@@ -4,7 +4,10 @@ use rand::{thread_rng, Rng};
 
 use crate::config::SceneConfig;
 use crate::object::material::Dielectric;
-use crate::object::{make_material_object, make_sphere_object, LambertianDiffuse, Metal, World};
+use crate::object::{
+    make_bouncing_sphere_object, make_material_object, make_sphere_object, LambertianDiffuse,
+    Metal, World,
+};
 use crate::render::Camera;
 use crate::utils::Vec3;
 
@@ -25,6 +28,8 @@ impl SceneConfig for RandomSphereScene {
             1.5,
             0.1,
             (look_at - look_from).length(),
+            0.0,
+            0.25,
         )
     }
 
@@ -46,7 +51,7 @@ impl SceneConfig for RandomSphereScene {
                 }
                 let center = Vec3(
                     i as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
-                    0.25,
+                    0.3,
                     j as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
                 );
                 let rand = rng.gen::<f64>();
@@ -62,7 +67,12 @@ impl SceneConfig for RandomSphereScene {
                 } else {
                     make_material_object(Dielectric::new(1.33, Vec3::one()))
                 };
-                let b = make_sphere_object(center, 0.25, &m);
+
+                let b = if m.get_type() == "LambertianDiffuse" {
+                    make_bouncing_sphere_object(center, 0.3, rng.gen_range(0.0, 1.0), 0.0, 0.5, &m)
+                } else {
+                    make_sphere_object(center, 0.3, &m)
+                };
                 world.add_hittable(&b);
             }
         }

@@ -4,6 +4,7 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 
 ## TODO
 
+### one weekend
 - [x] Output an image
 - [x] Vector utilities
 - [x] Basic skybox rendering
@@ -17,9 +18,14 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Dielectric materials
 - [x] Positionable camera
 - [x] Depth of field
-- [ ] Scene configuration
+- [x] Scene configuration
 - [ ] Material configuration
 - [x] Multi-threaded rendering
+
+### next week
+
+- [x] Motion blur
+- [ ] Bounding volume hierarchies
 
 ## Running the program
 

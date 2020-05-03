@@ -7,6 +7,7 @@ pub use sphere::Sphere;
 pub use world::World;
 
 use crate::object::material::Material;
+use crate::object::sphere::MovingSphere;
 use crate::utils::{Ray, Vec3};
 
 pub mod material;
@@ -69,5 +70,25 @@ pub fn make_sphere_object(center: Vec3<f64>, radius: f64, mat: &MaterialObject) 
         center,
         radius,
         mat: Arc::clone(mat),
+    })
+}
+
+pub fn make_bouncing_sphere_object(
+    center: Vec3<f64>,
+    radius: f64,
+    height: f64,
+    t0: f64,
+    t1: f64,
+    mat: &MaterialObject,
+) -> HittableObject {
+    let mut c1 = center;
+    c1.1 += height;
+    Arc::new(MovingSphere {
+        c0: center,
+        c1,
+        t0,
+        t1,
+        radius,
+        mat: mat.clone(),
     })
 }

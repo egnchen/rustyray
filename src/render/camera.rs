@@ -12,6 +12,7 @@ pub struct Camera {
     u: Vec3<f64>,
     v: Vec3<f64>,
     w: Vec3<f64>,
+    t_range: Uniform<f64>,
 }
 
 impl Camera {
@@ -23,6 +24,8 @@ impl Camera {
         aspect: f64,
         aperture: f64,
         focus_dist: f64,
+        t0: f64,
+        t1: f64,
     ) -> Camera {
         let theta = vfov * std::f64::consts::PI / 180.0;
         let half_height = (theta / 2.0).tan();
@@ -40,6 +43,7 @@ impl Camera {
             u,
             v,
             w,
+            t_range: Uniform::new(t0, t1),
         }
     }
 
@@ -59,9 +63,11 @@ impl Camera {
         let r = Self::get_rand_in_unit_disk() * self.lens_radius;
         let offset = self.u * r.x() + self.v * r.y();
         let orig = self.origin + offset;
+        let mut rng = thread_rng();
         Ray {
             orig,
             dir: self.start_corner + self.horizontal * u + self.vertical * v - orig,
+            t: self.t_range.sample(&mut rng),
         }
     }
 }
