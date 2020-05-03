@@ -3,7 +3,7 @@ pub use default_renderer::DefaultRenderer;
 pub use filter::GammaFilter;
 pub use multi_renderer::MultiRenderer;
 
-use crate::io::Picture;
+use crate::utils::Picture;
 
 pub mod camera;
 pub mod filter;

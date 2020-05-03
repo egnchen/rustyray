@@ -5,11 +5,10 @@ use num_traits::float::FloatCore;
 use rand::distributions::{Distribution, Uniform};
 use rand::thread_rng;
 
-use crate::io::{Color, Picture};
 use crate::object::{Hittable, World};
 use crate::render::filter::Filter;
 use crate::render::{Camera, GammaFilter, Renderer};
-use crate::utils::Ray;
+use crate::utils::{Color, Picture, Ray};
 
 /// multi-threaded renderer
 pub struct MultiRenderer {
@@ -144,7 +143,7 @@ impl Renderer for MultiRenderer {
                 }
             }
             for u in &mut buffer.data {
-                *u /= self.sample_per_unit as f64;
+                *u /= self.sample_per_unit as f32;
             }
             buffer
         });

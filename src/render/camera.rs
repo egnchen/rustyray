@@ -1,5 +1,5 @@
 use rand::distributions::{Distribution, Uniform};
-use rand::{thread_rng, Rng};
+use rand::thread_rng;
 
 use crate::utils::{Ray, Vec3};
 
@@ -43,9 +43,10 @@ impl Camera {
         }
     }
 
+    #[inline(always)]
     pub fn get_rand_in_unit_disk() -> Vec3<f64> {
         let mut rng = thread_rng();
-        let mut dis = Uniform::new(-1.0, 1.0);
+        let dis = Uniform::new(-1.0, 1.0);
         loop {
             let p = Vec3(dis.sample(&mut rng), dis.sample(&mut rng), 0.0);
             if p.length_square() < 1.0 {
@@ -57,9 +58,10 @@ impl Camera {
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
         let r = Self::get_rand_in_unit_disk() * self.lens_radius;
         let offset = self.u * r.x() + self.v * r.y();
+        let orig = self.origin + offset;
         Ray {
-            orig: self.origin + offset,
-            dir: self.start_corner + self.horizontal * u + self.vertical * v - self.origin - offset,
+            orig,
+            dir: self.start_corner + self.horizontal * u + self.vertical * v - orig,
         }
     }
 }

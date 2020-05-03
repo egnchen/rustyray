@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
-use crate::io::Color;
 use crate::object::{HitRecord, Hittable, HittableObject};
 use crate::render::skybox::{ColorGradientSkyBox, SkyBox};
-use crate::utils::Ray;
+use crate::utils::{Color, Ray};
 
 /// Object representing a world to render
 /// Every object in the hittable list is read-only

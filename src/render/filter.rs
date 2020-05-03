@@ -1,12 +1,13 @@
 //! Filter: define filters for rendering.
-use crate::io::Picture;
+
+use crate::utils::Picture;
 
 pub trait Filter {
     fn filter(&self, p: &mut Picture);
 }
 
 pub struct GammaFilter {
-    pub gamma: f64,
+    pub gamma: f32,
 }
 
 impl Filter for GammaFilter {

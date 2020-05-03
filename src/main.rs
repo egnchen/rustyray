@@ -1,5 +1,6 @@
 use rand::{thread_rng, Rng};
 
+use ray_tracer::io::file::write_to_png;
 use ray_tracer::object::material::{Dielectric, LambertianDiffuse, Metal};
 use ray_tracer::object::{make_material_object, make_sphere_object, World};
 use ray_tracer::render::MultiRenderer;
@@ -45,7 +46,7 @@ fn init_world() -> World {
             let rand = rng.gen::<f64>();
             let m = if rand < 0.65 {
                 make_material_object(LambertianDiffuse {
-                    albedo: Vec3::random(0.0, 1.0) * Vec3::random(0.0, 1.0),
+                    albedo: Vec3::random(0.0_f32, 1.0_f32) * Vec3::random(0.0_f32, 1.0_f32),
                 })
             } else if rand < 0.9 {
                 make_material_object(Metal {
@@ -94,5 +95,5 @@ fn main() {
         .render()
         .unwrap_or_else(|s| panic!("Render failed, {}", s));
     println!("Writing to out.png...");
-    p.write_to_png("out.png");
+    write_to_png(&p, "out.png");
 }

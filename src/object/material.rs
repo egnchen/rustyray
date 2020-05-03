@@ -4,7 +4,7 @@ use crate::object::{Face, HitRecord};
 use crate::utils::{Ray, Vec3};
 
 pub struct FilteredRay {
-    pub attenuation: Vec3<f64>,
+    pub attenuation: Vec3<f32>,
     pub scattered: Ray,
 }
 
@@ -14,7 +14,7 @@ pub trait Material {
 }
 
 pub struct LambertianDiffuse {
-    pub albedo: Vec3<f64>,
+    pub albedo: Vec3<f32>,
 }
 
 // helper function
@@ -43,11 +43,11 @@ impl Material for LambertianDiffuse {
 
 pub struct Metal {
     pub fuzziness: f64,
-    pub albedo: Vec3<f64>,
+    pub albedo: Vec3<f32>,
 }
 
 impl Metal {
-    pub fn new(fuzziness: f64, albedo: Vec3<f64>) -> Metal {
+    pub fn new(fuzziness: f64, albedo: Vec3<f32>) -> Metal {
         if fuzziness > 1.0 {
             return Metal {
                 fuzziness: 1.0,
@@ -84,11 +84,11 @@ pub struct Dielectric {
     pub eta: f64,
     eta_inv: f64,
     r0: f64,
-    pub albedo: Vec3<f64>,
+    pub albedo: Vec3<f32>,
 }
 
 impl Dielectric {
-    pub fn new(eta: f64, albedo: Vec3<f64>) -> Dielectric {
+    pub fn new(eta: f64, albedo: Vec3<f32>) -> Dielectric {
         let mut r0 = (1.0 - eta) / (1.0 + eta);
         r0 = r0 * r0;
         Dielectric {

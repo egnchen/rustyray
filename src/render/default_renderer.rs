@@ -5,11 +5,10 @@ use num_traits::float::FloatCore;
 use rand::distributions::{Distribution, Uniform};
 use rand::thread_rng;
 
-use crate::io::{Color, Picture};
 use crate::object::{Hittable, World};
 use crate::render::filter::Filter;
 use crate::render::{Camera, GammaFilter, Renderer};
-use crate::utils::Ray;
+use crate::utils::{Color, Picture, Ray};
 
 pub struct DefaultRenderer {
     width: usize,
@@ -95,7 +94,7 @@ impl Renderer for DefaultRenderer {
                     let u = bu + d2.sample(&mut rng);
                     c += self.ray_color(cam.get_ray(u, v));
                 }
-                c /= self.sample_per_unit as f64;
+                c /= self.sample_per_unit as f32;
                 p.data[(i * self.width + j) as usize] = c;
             }
             pb.inc(1);
