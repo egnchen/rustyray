@@ -8,7 +8,7 @@ use std::io::Write;
 use image::ImageBuffer;
 
 use crate::io::Color24;
-use crate::utils::{Picture, Vec3};
+use crate::utils::Picture;
 
 /// write_to_ppm: Write a picture to PPM file
 pub fn write_to_ppm(p: &Picture, filename: &str) -> io::Result<()> {
