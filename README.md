@@ -25,7 +25,7 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 ### next week
 
 - [x] Motion blur
-- [ ] Bounding volume hierarchies
+- [x] Bounding volume hierarchies
 
 ## Running the program
 

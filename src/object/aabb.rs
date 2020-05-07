@@ -1,7 +1,6 @@
 use std::cmp::{max, min};
 use std::mem::swap;
 
-use crate::object::{HitRecord, Hittable};
 use crate::utils::{Ray, Vec3};
 
 #[derive(Default, Clone)]
@@ -11,6 +10,7 @@ pub struct AABB {
 }
 
 impl AABB {
+    #[inline(always)]
     pub fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> bool {
         let mut t_min = t_min;
         let mut t_max = t_max;

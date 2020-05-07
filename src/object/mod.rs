@@ -1,3 +1,4 @@
+use std::fmt;
 use std::fmt::{Display, Formatter, Result};
 use std::sync::Arc;
 
@@ -30,6 +31,7 @@ impl Default for Face {
 }
 
 impl Face {
+    /// Calculate facing by direction of the light beam and normal vector.
     pub fn calc(p: &Vec3<f64>, r: &Ray) -> Face {
         if p.dot(r.direction()) < 0.0 {
             Face::Inward
@@ -39,6 +41,10 @@ impl Face {
     }
 }
 
+/// Internal structure to record an actual hit.
+///
+/// This structure contains the facing information(inward or outward), time of hit since the light
+/// beam was shoot, hit point, normal vector & material at that point.
 pub struct HitRecord {
     pub f: Face,
     pub t: f64,
@@ -58,13 +64,17 @@ impl Display for HitRecord {
 }
 
 pub trait Hittable {
-    /// return the bounding box of the object
-    /// note that some objects don't have a bounding box, like an infinite plane
+    /// Return the bounding box of the object.
+    ///
+    /// The bounding box is optional since some objects don't have a finite bounding box,
+    /// like an infinite plane.
     fn bounding_box(&self) -> Option<&AABB>;
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
+/// Thread-safe, read-only objects that implement `Hittable` trait
 pub type HittableObject = Arc<dyn Hittable + Send + Sync>;
+/// Thread-safe, read-only objects that implement `Material` trait
 pub type MaterialObject = Arc<dyn Material + Send + Sync>;
 
 pub fn make_material_object(a: impl Material + Send + Sync + 'static) -> MaterialObject {

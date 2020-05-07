@@ -1,9 +1,9 @@
 //! BVH: Binary Volume Hierarchy
 
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
-use image::DynamicImage;
 use rand::{thread_rng, Rng};
 
 use crate::object::aabb::AABB;
@@ -11,41 +11,54 @@ use crate::object::{HitRecord, Hittable, HittableObject};
 use crate::utils::Ray;
 
 pub struct BVHNode {
-    pub left: Arc<dyn Hittable>,
-    pub right: Arc<dyn Hittable>,
-    bounding_box: AABB,
+    pub left: HittableObject,
+    pub right: HittableObject,
+    pub bounding_box: AABB,
 }
 
 impl BVHNode {
-    pub fn new(hittable_list: &mut [Arc<dyn Hittable>]) -> BVHNode {
-        // select a random axis as comparator
-        let comp = BVHNode::get_comparator();
-        let (left, right) = match hittable_list.len() {
-            0 => panic!("error"),
-            1 => (hittable_list[0].clone(), hittable_list[0].clone()),
-            2 => match comp(&hittable_list[0], &hittable_list[1]) {
-                Ordering::Equal | Ordering::Less => {
-                    (hittable_list[0].clone(), hittable_list[1].clone())
+    pub fn new(hittable_list: &mut [HittableObject]) -> BVHNode {
+        match hittable_list.len() {
+            0 => panic!("Hittable list shouldn't be empty."),
+            1 => {
+                // Exception here: We use a single BVHNode, with two children being the same HittableObject.
+                BVHNode {
+                    left: hittable_list[0].clone(),
+                    right: hittable_list[0].clone(),
+                    bounding_box: hittable_list[0]
+                        .bounding_box()
+                        .expect("HittableObject not valid for AABB")
+                        .clone(),
                 }
-                Ordering::Greater => (hittable_list[1].clone(), hittable_list[0].clone()),
-            },
-            _ => {
-                // sort the list by comparator
-                hittable_list.sort_by(comp);
-                let (s1, s2) = hittable_list.split_at_mut(hittable_list.len() / 2);
-                (
-                    Arc::new(BVHNode::new(s1)) as Arc<dyn Hittable>,
-                    Arc::new(BVHNode::new(s2)) as Arc<dyn Hittable>,
-                )
             }
+            _ => BVHNode::build_tree(hittable_list),
+        }
+    }
+
+    /// Build the binary volume hierarchy for a hittable list length greater than 1
+    fn build_tree(hittable_list: &mut [HittableObject]) -> BVHNode {
+        // get the comparator and sort the list by it
+        let comp = BVHNode::get_comparator();
+        hittable_list.sort_by(comp);
+        let (s1, s2) = hittable_list.split_at_mut(hittable_list.len() / 2);
+        let left = if s1.len() == 1 {
+            Arc::clone(&s1[0])
+        } else {
+            Arc::new(BVHNode::build_tree(s1))
         };
-        let left_box = left
+        let right = if s2.len() == 1 {
+            Arc::clone(&s2[0])
+        } else {
+            Arc::new(BVHNode::build_tree(s2))
+        };
+        let bounding_box = left
             .bounding_box()
-            .expect("Missing bounding box for left node");
-        let right_box = left
-            .bounding_box()
-            .expect("Missing bounding box for right node");
-        let bounding_box = left_box.union(right_box);
+            .expect("HittableObject not valid for AABB.")
+            .union(
+                right
+                    .bounding_box()
+                    .expect("HittableObject not valid for AABB."),
+            );
         BVHNode {
             left,
             right,
@@ -53,9 +66,9 @@ impl BVHNode {
         }
     }
 
-    fn get_comparator() -> fn(&Arc<dyn Hittable>, &Arc<dyn Hittable>) -> Ordering {
+    fn get_comparator() -> fn(&HittableObject, &HittableObject) -> Ordering {
         match thread_rng().gen_range(0, 3) {
-            0 => |a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>| {
+            0 => |a: &HittableObject, b: &HittableObject| {
                 a.bounding_box()
                     .unwrap()
                     .min
@@ -63,7 +76,7 @@ impl BVHNode {
                     .partial_cmp(&b.bounding_box().unwrap().min.0)
                     .unwrap()
             },
-            1 => |a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>| {
+            1 => |a: &HittableObject, b: &HittableObject| {
                 a.bounding_box()
                     .unwrap()
                     .min
@@ -71,7 +84,7 @@ impl BVHNode {
                     .partial_cmp(&b.bounding_box().unwrap().min.1)
                     .unwrap()
             },
-            _ => |a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>| {
+            _ => |a: &HittableObject, b: &HittableObject| {
                 a.bounding_box()
                     .unwrap()
                     .min
@@ -93,7 +106,7 @@ impl Hittable for BVHNode {
             None
         } else {
             match self.left.hit(r, t_min, t_max) {
-                Some(rec1) => match self.right.hit(r, rec1.t, t_max) {
+                Some(rec1) => match self.right.hit(r, t_min, rec1.t) {
                     Some(rec2) => Some(rec2),
                     None => Some(rec1),
                 },
