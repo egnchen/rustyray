@@ -69,7 +69,7 @@ impl MultiRenderer {
                 }
             } else {
                 // sky box
-                return ret * world.get_skybox().get_color(r);
+                return ret * world.get_skybox().get_color(&r);
             }
         }
         Color::zero()

@@ -205,3 +205,12 @@ impl<T: Num + Copy> Vec3<T> {
         )
     }
 }
+
+impl<T: Copy> Vec3<T> {
+    pub fn apply<F>(&self, f: F) -> Self
+    where
+        F: Fn(T) -> T,
+    {
+        Vec3(f(self.0), f(self.1), f(self.2))
+    }
+}

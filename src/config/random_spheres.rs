@@ -12,7 +12,7 @@ use crate::render::Camera;
 use crate::utils::Vec3;
 
 pub struct RandomSphereScene {
-    // nothing here
+    pub bounce: bool,
 }
 
 impl SceneConfig for RandomSphereScene {
@@ -68,7 +68,7 @@ impl SceneConfig for RandomSphereScene {
                     make_material_object(Dielectric::new(1.33, Vec3::one()))
                 };
 
-                let b = if m.get_type() == "LambertianDiffuse" {
+                let b = if self.bounce && m.get_type() == "LambertianDiffuse" {
                     make_bouncing_sphere_object(center, 0.3, rng.gen_range(0.0, 1.0), 0.0, 0.5, &m)
                 } else {
                     make_sphere_object(center, 0.3, &m)

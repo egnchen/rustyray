@@ -6,10 +6,13 @@ pub use material::Metal;
 pub use sphere::Sphere;
 pub use world::World;
 
+use crate::object::aabb::AABB;
 use crate::object::material::Material;
 use crate::object::sphere::MovingSphere;
 use crate::utils::{Ray, Vec3};
 
+pub mod aabb;
+pub mod bvh;
 pub mod material;
 pub mod sphere;
 pub mod world;
@@ -55,6 +58,9 @@ impl Display for HitRecord {
 }
 
 pub trait Hittable {
+    /// return the bounding box of the object
+    /// note that some objects don't have a bounding box, like an infinite plane
+    fn bounding_box(&self) -> Option<&AABB>;
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
@@ -66,11 +72,7 @@ pub fn make_material_object(a: impl Material + Send + Sync + 'static) -> Materia
 }
 
 pub fn make_sphere_object(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> HittableObject {
-    Arc::new(Sphere {
-        center,
-        radius,
-        mat: Arc::clone(mat),
-    })
+    Arc::new(Sphere::new(center, radius, &mat))
 }
 
 pub fn make_bouncing_sphere_object(
@@ -83,12 +85,5 @@ pub fn make_bouncing_sphere_object(
 ) -> HittableObject {
     let mut c1 = center;
     c1.1 += height;
-    Arc::new(MovingSphere {
-        c0: center,
-        c1,
-        t0,
-        t1,
-        radius,
-        mat: mat.clone(),
-    })
+    Arc::new(MovingSphere::new(center, c1, t0, t1, radius, &mat))
 }

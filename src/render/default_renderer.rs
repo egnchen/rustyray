@@ -61,7 +61,7 @@ impl DefaultRenderer {
                     return Color::zero();
                 }
             } else {
-                return ret * w.get_skybox().get_color(r);
+                return ret * w.get_skybox().get_color(&r);
             }
         }
         Color::zero()
