@@ -5,8 +5,8 @@ use ray_tracer::render::MultiRenderer;
 use ray_tracer::render::Renderer;
 
 fn main() {
-    let width = 300;
-    let height = 200;
+    let width = 750;
+    let height = 500;
 
     // set up the scene
     let s = RandomSphereScene { bounce: false };

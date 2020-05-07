@@ -1,10 +1,11 @@
 use rand::{thread_rng, Rng};
 
-use crate::object::{Face, HitRecord};
-use crate::utils::{Ray, Vec3};
+use crate::object::texture::Texture;
+use crate::object::{Face, HitRecord, TextureObject};
+use crate::utils::{Color, Ray, Vec3};
 
 pub struct FilteredRay {
-    pub attenuation: Vec3<f32>,
+    pub attenuation: Color,
     pub scattered: Ray,
 }
 
@@ -14,7 +15,7 @@ pub trait Material {
 }
 
 pub struct LambertianDiffuse {
-    pub albedo: Vec3<f32>,
+    pub texture: TextureObject,
 }
 
 // helper function
@@ -32,7 +33,7 @@ impl Material for LambertianDiffuse {
     }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
         Some(FilteredRay {
-            attenuation: self.albedo,
+            attenuation: self.texture.get_color(h.u, h.v, h.p),
             scattered: Ray {
                 orig: h.p,
                 dir: h.normal + rand_unit_vector(),

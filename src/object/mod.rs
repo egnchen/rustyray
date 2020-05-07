@@ -1,4 +1,3 @@
-use std::fmt;
 use std::fmt::{Display, Formatter, Result};
 use std::sync::Arc;
 
@@ -10,12 +9,14 @@ pub use world::World;
 use crate::object::aabb::AABB;
 use crate::object::material::Material;
 use crate::object::sphere::MovingSphere;
+use crate::object::texture::Texture;
 use crate::utils::{Ray, Vec3};
 
 pub mod aabb;
 pub mod bvh;
 pub mod material;
 pub mod sphere;
+pub mod texture;
 pub mod world;
 
 #[derive(Debug, Copy, Clone)]
@@ -49,6 +50,8 @@ pub struct HitRecord {
     pub f: Face,
     pub t: f64,
     pub p: Vec3<f64>,
+    pub u: f64,
+    pub v: f64,
     pub normal: Vec3<f64>,
     pub mat: Arc<dyn Material + Send + Sync>,
 }
@@ -76,6 +79,8 @@ pub trait Hittable {
 pub type HittableObject = Arc<dyn Hittable + Send + Sync>;
 /// Thread-safe, read-only objects that implement `Material` trait
 pub type MaterialObject = Arc<dyn Material + Send + Sync>;
+/// Thread-safe, read-only objects that implement `Texture` trait
+pub type TextureObject = Arc<dyn Texture + Send + Sync>;
 
 pub fn make_material_object(a: impl Material + Send + Sync + 'static) -> MaterialObject {
     Arc::new(a)

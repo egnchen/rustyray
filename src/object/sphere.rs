@@ -1,4 +1,3 @@
-use std::fmt::Formatter;
 use std::sync::Arc;
 
 use crate::object::aabb::AABB;
@@ -65,6 +64,8 @@ impl Hittable for Sphere {
                 f,
                 t,
                 p,
+                u: 0.0,
+                v: 0.0,
                 normal,
                 mat: Arc::clone(&self.mat),
             })
@@ -153,6 +154,8 @@ impl Hittable for MovingSphere {
                 f,
                 t,
                 p,
+                u: 0.0,
+                v: 0.0,
                 normal,
                 mat: Arc::clone(&self.mat),
             })

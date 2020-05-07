@@ -1,7 +1,6 @@
 //! BVH: Binary Volume Hierarchy
 
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
 use rand::{thread_rng, Rng};

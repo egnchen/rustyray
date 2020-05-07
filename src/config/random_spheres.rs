@@ -1,9 +1,12 @@
 //! configuration for the random spheres scene
 
+use std::sync::Arc;
+
 use rand::{thread_rng, Rng};
 
 use crate::config::SceneConfig;
 use crate::object::material::Dielectric;
+use crate::object::texture::{CheckerTexture, SolidColor};
 use crate::object::{
     make_bouncing_sphere_object, make_material_object, make_sphere_object, LambertianDiffuse,
     Metal, World,
@@ -37,8 +40,12 @@ impl SceneConfig for RandomSphereScene {
     fn get_world(&self) -> World {
         let mut world = World::new();
 
+        // checkered ground
         let mat_ground = make_material_object(LambertianDiffuse {
-            albedo: Vec3(0.5, 0.5, 0.5),
+            texture: Arc::new(CheckerTexture {
+                odd_color: Arc::new(SolidColor::new(1.0, 1.0, 1.0)),
+                even_color: Arc::new(SolidColor::new(0.2, 0.3, 0.1)),
+            }),
         });
         let sphere_ground = make_sphere_object(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
         world.add_hittable(&sphere_ground);
@@ -57,7 +64,7 @@ impl SceneConfig for RandomSphereScene {
                 let rand = rng.gen::<f64>();
                 let m = if rand < 0.65 {
                     make_material_object(LambertianDiffuse {
-                        albedo: Vec3::random(0.0_f32, 1.0_f32) * Vec3::random(0.0_f32, 1.0_f32),
+                        texture: Arc::new(SolidColor::random()),
                     })
                 } else if rand < 0.9 {
                     make_material_object(Metal {
@@ -79,7 +86,7 @@ impl SceneConfig for RandomSphereScene {
 
         // add three giant balls!
         let m1 = make_material_object(LambertianDiffuse {
-            albedo: Vec3::random(0.0, 1.0),
+            texture: Arc::new(SolidColor::random()),
         });
         let m2 = make_material_object(Dielectric::new(1.33, Vec3::one()));
         let m3 = make_material_object(Metal {

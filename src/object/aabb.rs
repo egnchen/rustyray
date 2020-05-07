@@ -1,4 +1,3 @@
-use std::cmp::{max, min};
 use std::mem::swap;
 
 use crate::utils::{Ray, Vec3};
@@ -20,10 +19,10 @@ impl AABB {
         // One cannot iterate over tuple, so manually unroll the loop here...
         let d = &r.dir;
         let o = &r.orig;
-        let invD = 1.0 / d.0;
-        t0 = (self.min.0 - o.0) * invD;
-        t1 = (self.max.0 - o.0) * invD;
-        if invD < 0.0 {
+        let inv_d = 1.0 / d.0;
+        t0 = (self.min.0 - o.0) * inv_d;
+        t1 = (self.max.0 - o.0) * inv_d;
+        if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
         t_min = if t0 > t_min { t0 } else { t_min };
@@ -31,10 +30,10 @@ impl AABB {
         if t_max <= t_min {
             return false;
         }
-        let invD = 1.0 / d.1;
-        t0 = (self.min.1 - o.1) * invD;
-        t1 = (self.max.1 - o.1) * invD;
-        if invD < 0.0 {
+        let inv_d = 1.0 / d.1;
+        t0 = (self.min.1 - o.1) * inv_d;
+        t1 = (self.max.1 - o.1) * inv_d;
+        if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
         t_min = if t0 > t_min { t0 } else { t_min };
@@ -42,10 +41,10 @@ impl AABB {
         if t_max <= t_min {
             return false;
         }
-        let invD = 1.0 / d.2;
-        t0 = (self.min.2 - o.2) * invD;
-        t1 = (self.max.2 - o.2) * invD;
-        if invD < 0.0 {
+        let inv_d = 1.0 / d.2;
+        t0 = (self.min.2 - o.2) * inv_d;
+        t1 = (self.max.2 - o.2) * inv_d;
+        if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
         t_min = if t0 > t_min { t0 } else { t_min };
