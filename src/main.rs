@@ -14,7 +14,7 @@ fn main() {
     let mut r = MultiRenderer::new(width, height);
     r.set_camera(s.get_camera());
     r.set_world(s.get_world());
-    r.set_pixel_sample(64);
+    r.set_pixel_sample(128);
     // fire it up
     let p = r
         .render()
