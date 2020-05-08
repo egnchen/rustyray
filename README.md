@@ -59,4 +59,4 @@ Writing to out.png...
 Main binary produces a picture of lots of random spheres(configuration in `src/config/random_spheres.rs`).
 ![](example.png)
 
-(Renderer configuration: picture size 750*500, sample per pixel = 128, aperture size = 0.05, 4 threads, ~500 spheres)
+(~500 spheres in the scene)
