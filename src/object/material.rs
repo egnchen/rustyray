@@ -1,6 +1,5 @@
 use rand::{thread_rng, Rng};
 
-use crate::object::texture::Texture;
 use crate::object::{Face, HitRecord, TextureObject};
 use crate::utils::{Color, Ray, Vec3};
 

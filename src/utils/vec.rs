@@ -18,6 +18,16 @@ impl<T: PartialEq> PartialEq for Vec3<T> {
     }
 }
 
+impl<T: Copy> Vec3<T> {
+    #[inline(always)]
+    pub fn apply<F, K>(&self, f: F) -> Vec3<K>
+    where
+        F: Fn(T) -> K,
+    {
+        Vec3(f(self.0), f(self.1), f(self.2))
+    }
+}
+
 impl<T: Eq> Eq for Vec3<T> {}
 
 impl<T: Add> Add<Vec3<T>> for Vec3<T> {
@@ -52,14 +62,14 @@ impl<T: Div> Div for Vec3<T> {
 impl<T: Add + Copy> Add<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn add(self, rhs: T) -> Self::Output {
-        Vec3(self.0 + rhs, self.1 + rhs, self.2 + rhs)
+        self.apply(|x| x + rhs)
     }
 }
 
 impl<T: Sub + Copy> Sub<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
     fn sub(self, rhs: T) -> Self::Output {
-        Vec3(self.0 - rhs, self.1 - rhs, self.2 - rhs)
+        self.apply(|x| x - rhs)
     }
 }
 
@@ -67,7 +77,7 @@ impl<T: Mul + Copy> Mul<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
 
     fn mul(self, rhs: T) -> Self::Output {
-        Vec3(self.0 * rhs, self.1 * rhs, self.2 * rhs)
+        self.apply(|x| x * rhs)
     }
 }
 
@@ -75,7 +85,7 @@ impl<T: Div + Copy> Div<T> for Vec3<T> {
     type Output = Vec3<T::Output>;
 
     fn div(self, rhs: T) -> Self::Output {
-        Vec3(self.0 / rhs, self.1 / rhs, self.2 / rhs)
+        self.apply(|x| x / rhs)
     }
 }
 
@@ -203,14 +213,5 @@ impl<T: Num + Copy> Vec3<T> {
             T::zero() - (self.0 * rhs.2 - self.2 * rhs.0),
             self.0 * rhs.1 - self.1 * rhs.0,
         )
-    }
-}
-
-impl<T: Copy> Vec3<T> {
-    pub fn apply<F>(&self, f: F) -> Self
-    where
-        F: Fn(T) -> T,
-    {
-        Vec3(f(self.0), f(self.1), f(self.2))
     }
 }

@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::utils::perlin::Perlin;
 use crate::utils::{Color, Vec3};
 
 pub trait Texture {
@@ -43,5 +44,17 @@ impl Texture for CheckerTexture {
         } else {
             self.even_color.get_color(u, v, p)
         }
+    }
+}
+
+pub struct NoiseTexture {
+    pub generator: Arc<Perlin>,
+    pub frequency: f64,
+}
+
+impl Texture for NoiseTexture {
+    fn get_color(&self, _u: f64, _v: f64, p: Vec3<f64>) -> Color {
+        // Vec3::<f32>::one() * self.generator.smoothed_shifted_noise(p, self.frequency)
+        Vec3::<f32>::one() * self.generator.smoothed_noise(p, self.frequency)
     }
 }

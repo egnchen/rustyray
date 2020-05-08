@@ -1,15 +1,19 @@
 use std::fmt::{Display, Formatter, Result};
 use std::sync::Arc;
 
+pub use material::Dielectric;
 pub use material::LambertianDiffuse;
+pub use material::Material;
 pub use material::Metal;
+pub use sphere::MovingSphere;
 pub use sphere::Sphere;
+pub use texture::CheckerTexture;
+pub use texture::NoiseTexture;
+pub use texture::SolidColor;
+pub use texture::Texture;
 pub use world::World;
 
 use crate::object::aabb::AABB;
-use crate::object::material::Material;
-use crate::object::sphere::MovingSphere;
-use crate::object::texture::Texture;
 use crate::utils::{Ray, Vec3};
 
 pub mod aabb;
@@ -82,8 +86,8 @@ pub type MaterialObject = Arc<dyn Material + Send + Sync>;
 /// Thread-safe, read-only objects that implement `Texture` trait
 pub type TextureObject = Arc<dyn Texture + Send + Sync>;
 
-pub fn make_material_object(a: impl Material + Send + Sync + 'static) -> MaterialObject {
-    Arc::new(a)
+pub fn make_material_object(m: impl Material + Send + Sync + 'static) -> MaterialObject {
+    Arc::new(m)
 }
 
 pub fn make_sphere_object(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> HittableObject {
@@ -101,4 +105,8 @@ pub fn make_bouncing_sphere_object(
     let mut c1 = center;
     c1.1 += height;
     Arc::new(MovingSphere::new(center, c1, t0, t1, radius, &mat))
+}
+
+pub fn make_texture_object(t: impl Texture + Send + Sync + 'static) -> TextureObject {
+    Arc::new(t)
 }
