@@ -1,4 +1,4 @@
-# raytracer
+# rustyray
 
 This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) implemented in Rust.
 
@@ -26,6 +26,7 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 
 - [x] Motion blur
 - [x] Bounding volume hierarchies
+- [x] Various perlin noise texture
 
 ## Running the program
 
