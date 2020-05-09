@@ -120,4 +120,16 @@ impl Perlin {
         }
         ret as f32
     }
+
+    pub fn turbulence(&self, p: Vec3<f64>, depth: usize) -> f32 {
+        let mut ret = 0.0;
+        let mut weight = 1.0;
+        let mut f = 1.0;
+        for _i in 0..depth {
+            ret += weight * self.smoothed_noise(p, f);
+            weight *= 0.5;
+            f *= 2.0;
+        }
+        ret
+    }
 }

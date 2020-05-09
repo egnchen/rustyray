@@ -29,7 +29,7 @@ impl SceneConfig for RandomSphereScene {
             Vec3(0.0, 1.0, 0.0),
             20.0,
             1.5,
-            0.1,
+            0.0,
             (look_at - look_from).length(),
             0.0,
             0.25,

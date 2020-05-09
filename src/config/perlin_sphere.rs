@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::config::SceneConfig;
-use crate::object::texture::NoiseTexture;
+use crate::object::texture::{MarbleTexture, NoiseTexture};
 use crate::object::{
     make_material_object, make_sphere_object, make_texture_object, LambertianDiffuse, World,
 };
@@ -30,9 +30,10 @@ impl SceneConfig for PerlinSphereScene {
 
     fn get_world(&self) -> World {
         let perlin = Arc::new(Perlin::new());
-        let texture = make_texture_object(NoiseTexture {
-            generator: Arc::clone(&perlin),
-            frequency: 5.0,
+        let texture = make_texture_object(MarbleTexture {
+            generator: perlin.clone(),
+            scale: 2.0,
+            turbulence: 10.0,
         });
         let mat = make_material_object(LambertianDiffuse { texture });
 

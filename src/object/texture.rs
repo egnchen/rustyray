@@ -47,14 +47,49 @@ impl Texture for CheckerTexture {
     }
 }
 
-pub struct NoiseTexture {
+pub struct HashTexture {
     pub generator: Arc<Perlin>,
     pub frequency: f64,
 }
 
-impl Texture for NoiseTexture {
+impl Texture for HashTexture {
     fn get_color(&self, _u: f64, _v: f64, p: Vec3<f64>) -> Color {
-        // Vec3::<f32>::one() * self.generator.smoothed_shifted_noise(p, self.frequency)
-        Vec3::<f32>::one() * self.generator.smoothed_noise(p, self.frequency)
+        Vec3::<f32>::one() * self.generator.noise(p, self.frequency)
+    }
+}
+
+pub struct NoiseTexture {
+    pub generator: Arc<Perlin>,
+    pub frequency: f64,
+    pub shifted: bool,
+}
+
+impl Texture for NoiseTexture {
+    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+        if self.shifted {
+            Vec3::<f32>::one() * self.generator.smoothed_shifted_noise(p, self.frequency)
+        } else {
+            Vec3::<f32>::one() * self.generator.smoothed_noise(p, self.frequency)
+        }
+    }
+}
+
+/// Create a marble-like texture.
+///
+/// * `scale`: Density of the marble stripes. Larger this value, the stripes are denser.
+/// * `turbulence`: Strength of the turbulence of the sine strips. Larger this value, more turbulent the result.
+pub struct MarbleTexture {
+    pub generator: Arc<Perlin>,
+    pub scale: f32,
+    pub turbulence: f32,
+}
+
+impl Texture for MarbleTexture {
+    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+        Vec3::<f32>::one()
+            * 0.5
+            * (1.0
+                + (self.scale * p.z() as f32 + self.turbulence * self.generator.turbulence(p, 7))
+                    .sin())
     }
 }
