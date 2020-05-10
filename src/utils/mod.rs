@@ -32,4 +32,9 @@ impl Picture {
             data: vec![Color::zero(); width * height],
         }
     }
+
+    #[inline]
+    pub fn at(&self, x: usize, y: usize) -> Color {
+        self.data[y * self.width + x]
+    }
 }

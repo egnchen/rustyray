@@ -5,10 +5,10 @@ use std::io;
 use std::io::BufWriter;
 use std::io::Write;
 
-use image::ImageBuffer;
+use image::{open, ImageBuffer, RgbImage};
 
 use crate::io::Color24;
-use crate::utils::Picture;
+use crate::utils::{Color, Picture};
 
 /// write_to_ppm: Write a picture to PPM file
 pub fn write_to_ppm(p: &Picture, filename: &str) -> io::Result<()> {
@@ -42,4 +42,23 @@ pub fn write_to_png(p: &Picture, filename: &str) {
         image::Rgb([c.0, c.1, c.2])
     });
     buf.save(filename).unwrap();
+}
+
+/// read image file of arbitrary type
+pub fn read_picture(filename: &str) -> Picture {
+    let buf: RgbImage = open(filename).expect("Failed to read image.").into_rgb();
+    Picture {
+        width: buf.width() as usize,
+        height: buf.height() as usize,
+        data: buf
+            .pixels()
+            .map(|x| {
+                Color::new(
+                    x.0[0] as f32 / 255.0,
+                    x.0[1] as f32 / 255.0,
+                    x.0[2] as f32 / 255.0,
+                )
+            })
+            .collect(),
+    }
 }

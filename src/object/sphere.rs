@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 use std::sync::Arc;
 
 use crate::object::aabb::AABB;
@@ -13,7 +14,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub(crate) fn new(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> Sphere {
+    pub fn new(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> Sphere {
         Sphere {
             center,
             radius,
@@ -24,6 +25,13 @@ impl Sphere {
                 max: center + radius,
             },
         }
+    }
+
+    #[inline(always)]
+    fn get_sphere_uv(&self, p: Vec3<f64>) -> (f64, f64) {
+        let phi = p.z().atan2(p.x());
+        let theta = (p.y() / self.radius).asin();
+        (0.5 - phi / (2.0 * PI), 0.5 + theta / PI)
     }
 }
 
@@ -60,12 +68,13 @@ impl Hittable for Sphere {
             if let Face::Outward = f {
                 normal = -normal;
             }
+            let (u, v) = self.get_sphere_uv(p - self.center);
             Some(HitRecord {
                 f,
                 t,
                 p,
-                u: 0.0,
-                v: 0.0,
+                u,
+                v,
                 normal,
                 mat: Arc::clone(&self.mat),
             })
@@ -118,6 +127,13 @@ impl MovingSphere {
     fn center(&self, t: f64) -> Vec3<f64> {
         self.c0 + (self.c1 - self.c0) * ((t - self.t0) / (self.t1 - self.t0))
     }
+
+    #[inline(always)]
+    fn get_sphere_uv(&self, p: Vec3<f64>) -> (f64, f64) {
+        let phi = p.z().atan2(p.x());
+        let theta = (p.y() / self.radius).asin();
+        (0.5 - phi / (2.0 * PI), 0.5 + theta / PI)
+    }
 }
 
 impl Hittable for MovingSphere {
@@ -126,8 +142,8 @@ impl Hittable for MovingSphere {
     }
 
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        let c = self.center(r.time());
-        let t1 = r.origin() - c;
+        let center = self.center(r.time());
+        let t1 = r.origin() - center;
         let t2 = r.direction();
 
         let a = t2.length_square();
@@ -145,6 +161,7 @@ impl Hittable for MovingSphere {
                 }
             }
             let p = r.at(t);
+            let (u, v) = self.get_sphere_uv(p - center);
             let mut normal = (p - c) / self.radius;
             let f = Face::calc(&normal, &r);
             if let Face::Outward = f {
@@ -154,8 +171,8 @@ impl Hittable for MovingSphere {
                 f,
                 t,
                 p,
-                u: 0.0,
-                v: 0.0,
+                u,
+                v,
                 normal,
                 mat: Arc::clone(&self.mat),
             })

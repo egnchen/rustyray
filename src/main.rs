@@ -6,8 +6,8 @@ use ray_tracer::render::MultiRenderer;
 use ray_tracer::render::Renderer;
 
 fn main() {
-    let width = 300;
-    let height = 200;
+    let width = 750;
+    let height = 500;
 
     // set up the scene
     // let s = RandomSphereScene { bounce: false };
@@ -16,7 +16,7 @@ fn main() {
     let mut r = MultiRenderer::new(width, height);
     r.set_camera(s.get_camera());
     r.set_world(s.get_world());
-    r.set_pixel_sample(128);
+    r.set_pixel_sample(64);
     // fire it up
     let p = r
         .render()

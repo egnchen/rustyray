@@ -26,6 +26,8 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 
 - [x] Motion blur
 - [x] Bounding volume hierarchies
+- [x] Various perlin noise texture
+- [x] Image texture
 
 ## Running the program
 

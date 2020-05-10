@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use crate::config::SceneConfig;
-use crate::object::texture::{MarbleTexture, NoiseTexture};
+use crate::io::file::read_picture;
+use crate::object::texture::{ImageTexture, MarbleTexture, NoiseTexture};
 use crate::object::{
     make_material_object, make_sphere_object, make_texture_object, LambertianDiffuse, World,
 };
@@ -35,10 +36,15 @@ impl SceneConfig for PerlinSphereScene {
             scale: 2.0,
             turbulence: 10.0,
         });
+        let globe_texture = make_texture_object(ImageTexture {
+            image: Arc::new(read_picture("assets/textures/earthmap.jpg")),
+        });
+        let globe_mat = make_material_object(LambertianDiffuse {
+            texture: globe_texture,
+        });
         let mat = make_material_object(LambertianDiffuse { texture });
-
         let s1 = make_sphere_object(Vec3(0.0, -1000.0, 0.0), 1000.0, &mat);
-        let s2 = make_sphere_object(Vec3(0.0, 2.0, 0.0), 2.0, &mat);
+        let s2 = make_sphere_object(Vec3(0.0, 2.0, 0.0), 2.0, &globe_mat);
         let mut world = World::new();
         world.add_hittable(&s1);
         world.add_hittable(&s2);

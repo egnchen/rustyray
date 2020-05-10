@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::utils::perlin::Perlin;
-use crate::utils::{Color, Vec3};
+use crate::utils::{Color, Picture, Vec3};
 
 pub trait Texture {
     fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color;
@@ -76,7 +76,7 @@ impl Texture for NoiseTexture {
 
 /// Create a marble-like texture.
 ///
-/// * `scale`: Density of the marble stripes. Larger this value, the stripes are denser.
+/// * `scale`: Density(frequency) of the marble stripes. Larger this value, denser the stripes.
 /// * `turbulence`: Strength of the turbulence of the sine strips. Larger this value, more turbulent the result.
 pub struct MarbleTexture {
     pub generator: Arc<Perlin>,
@@ -91,5 +91,20 @@ impl Texture for MarbleTexture {
             * (1.0
                 + (self.scale * p.z() as f32 + self.turbulence * self.generator.turbulence(p, 7))
                     .sin())
+    }
+}
+
+// Spherical image texture
+pub struct ImageTexture {
+    pub image: Arc<Picture>,
+}
+
+impl Texture for ImageTexture {
+    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+        // clamp u,v to image.width, image.height
+        // u, v should both in range [0, 1](mathematically)
+        let u = (u * self.image.width as f64) as usize;
+        let v = ((1.0 - v) * self.image.height as f64) as usize;
+        self.image.at(u, v)
     }
 }
