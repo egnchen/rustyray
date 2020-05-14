@@ -10,6 +10,9 @@ pub struct FilteredRay {
 
 pub trait Material {
     fn get_type(&self) -> &'static str;
+    fn emit(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+        Color::zero()
+    }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay>;
 }
 
@@ -138,5 +141,24 @@ impl Material for Dielectric {
                 t: r.time(),
             },
         })
+    }
+}
+
+pub struct DiffuseLight {
+    pub emit: TextureObject,
+    pub brightness: f32,
+}
+
+impl Material for DiffuseLight {
+    fn get_type(&self) -> &'static str {
+        "DiffuseLight"
+    }
+
+    fn emit(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+        self.emit.get_color(u, v, p) * self.brightness
+    }
+
+    fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
+        None
     }
 }

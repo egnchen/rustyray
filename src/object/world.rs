@@ -41,6 +41,10 @@ impl World {
         self.sky_box.as_ref()
     }
 
+    pub fn set_skybox(&mut self, s: &Arc<dyn SkyBox + Send + Sync>) {
+        self.sky_box = s.clone();
+    }
+
     pub fn clear(&mut self) {
         self.hittable_list.clear();
     }

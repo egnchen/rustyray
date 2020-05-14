@@ -57,19 +57,23 @@ impl MultiRenderer {
         // don't do tail-recursion :)
         // calculate
         let mut r = r;
-        let mut ret = Color::one();
+        let mut coeff = Color::one();
+        let mut ret = Color::zero();
         for _i in 0..depth {
             if let Some(h) = world.hit(&r, 0.001, f64::infinity()) {
-                // hit something
+                // emisssive material
+                ret += coeff * h.mat.emit(h.u, h.v, h.p);
                 if let Some(f) = h.mat.scatter(&r, &h) {
-                    ret *= f.attenuation;
+                    // scattering material
+                    coeff *= f.attenuation;
                     r = f.scattered;
                 } else {
-                    return Color::zero();
+                    // no more scattering, return value :)
+                    return ret;
                 }
             } else {
                 // sky box
-                return ret * world.get_skybox().get_color(&r);
+                return ret + coeff * world.get_skybox().get_color(&r);
             }
         }
         Color::zero()

@@ -65,7 +65,7 @@ pub struct NoiseTexture {
 }
 
 impl Texture for NoiseTexture {
-    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+    fn get_color(&self, _u: f64, _v: f64, p: Vec3<f64>) -> Color {
         if self.shifted {
             Vec3::<f32>::one() * self.generator.smoothed_shifted_noise(p, self.frequency)
         } else {
@@ -85,7 +85,7 @@ pub struct MarbleTexture {
 }
 
 impl Texture for MarbleTexture {
-    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+    fn get_color(&self, _u: f64, _v: f64, p: Vec3<f64>) -> Color {
         Vec3::<f32>::one()
             * 0.5
             * (1.0
@@ -100,7 +100,7 @@ pub struct ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+    fn get_color(&self, u: f64, v: f64, _p: Vec3<f64>) -> Color {
         // clamp u,v to image.width, image.height
         // u, v should both in range [0, 1](mathematically)
         let u = (u * self.image.width as f64) as usize;
