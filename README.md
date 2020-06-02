@@ -18,9 +18,6 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Dielectric materials
 - [x] Positionable camera
 - [x] Depth of field
-- [x] Scene configuration
-- [ ] Material configuration
-- [x] Multi-threaded rendering
 
 ### next week
 
@@ -28,6 +25,16 @@ This is [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTraci
 - [x] Bounding volume hierarchies
 - [x] Various perlin noise texture
 - [x] Image texture
+- [x] Light sources
+- [ ] Rectangles
+
+## "One more thing"s
+
+- [x] Scene configuration
+- [ ] Material configuration
+- [x] Multi-threaded rendering
+- [ ] SIMD support
+- [ ] WASM support
 
 ## Running the program
 
