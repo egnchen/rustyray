@@ -9,14 +9,27 @@ use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::thread_rng;
 
-#[derive(Debug, Copy, Clone, Default)]
-pub struct Vec3<T>(pub T, pub T, pub T);
+// #[derive(Debug, Copy, Clone, Default)]
+// pub struct Vec3<T>(pub T, pub T, pub T);
 
-impl<T: PartialEq> PartialEq for Vec3<T> {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0 && self.1 == other.1 && self.2 == other.2
+#[derive(Debug, Copy, Clone, Default)]
+pub struct Vec3<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+}
+
+impl<T> Vec3<T> {
+    fn new(x: T, y: T, z: T) -> Vec3<T> {
+        Vec3 { x, y, z }
     }
 }
+impl<T: PartialEq> PartialEq for Vec3<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.z == other.z
+    }
+}
+impl<T: PartialEq> Eq for Vec3<T> {}
 
 impl<T: Copy> Vec3<T> {
     #[inline(always)]
@@ -24,134 +37,111 @@ impl<T: Copy> Vec3<T> {
     where
         F: Fn(T) -> K,
     {
-        Vec3(f(self.0), f(self.1), f(self.2))
+        Vec3::new(f(self.x), f(self.y), f(self.z))
     }
 }
 
-impl<T: Eq> Eq for Vec3<T> {}
-
-impl<T: Add> Add<Vec3<T>> for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn add(self, rhs: Self) -> Self::Output {
-        Vec3(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
-    }
+/// Macro to implement element-wise vector-to-vector arithmetic operation.
+macro_rules! impl_arith {
+    ($tr: ident, $method: ident) => {
+        impl<T: $tr> $tr<Vec3<T>> for Vec3<T> {
+            type Output = Vec3<T::Output>;
+            #[inline(always)]
+            fn $method(self, rhs: Self) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs.x),
+                    y: self.y.$method(rhs.y),
+                    z: self.z.$method(rhs.z),
+                }
+            }
+        }
+    };
 }
 
-impl<T: Sub> Sub for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn sub(self, rhs: Self) -> Self::Output {
-        Vec3(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
-    }
+/// Macro to implement element-wise vector-to-element arithmetic operation.
+macro_rules! impl_ele_arith {
+    ($tr: ident, $method: ident) => {
+        impl<T: $tr + Copy> $tr<T> for Vec3<T> {
+            type Output = Vec3<T::Output>;
+            #[inline(always)]
+            fn $method(self, rhs: T) -> Self::Output {
+                Vec3::<T::Output>::new(
+                    self.x.$method(rhs),
+                    self.y.$method(rhs),
+                    self.z.$method(rhs),
+                )
+            }
+        }
+    };
 }
 
-impl<T: Mul> Mul for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn mul(self, rhs: Self) -> Self::Output {
-        Vec3(self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2)
-    }
+/// Macro to support element-wise vector-to-vector assignment operations.
+macro_rules! impl_assign_arith {
+    ($tr: ident, $method: ident) => {
+        impl<T: $tr> $tr<Vec3<T>> for Vec3<T> {
+            #[inline(always)]
+            fn $method(&mut self, rhs: Vec3<T>) {
+                self.x.$method(rhs.x);
+                self.y.$method(rhs.y);
+                self.z.$method(rhs.z);
+            }
+        }
+    };
 }
 
-impl<T: Div> Div for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn div(self, rhs: Self) -> Self::Output {
-        Vec3(self.0 / rhs.0, self.1 / rhs.1, self.2 / rhs.2)
-    }
+/// Macro to support element-wise vector-to-element assignment operations.
+macro_rules! impl_ele_assign_arith {
+    ($tr: ident, $method: ident) => {
+        impl<T: $tr> $tr<T> for Vec3<T> {
+            #[inline(always)]
+            fn $method(&mut self, rhs: T) {
+                self.x.$method(rhs);
+                self.y.$method(rhs);
+                self.z.$method(rhs);
+            }
+        }
+    };
 }
 
-/// element-wise operation between vector and primitives
-impl<T: Add + Copy> Add<T> for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn add(self, rhs: T) -> Self::Output {
-        self.apply(|x| x + rhs)
-    }
-}
+impl_arith!(Add, add);
+impl_arith!(Sub, sub);
+impl_arith!(Mul, mul);
+impl_arith!(Div, div);
 
-impl<T: Sub + Copy> Sub<T> for Vec3<T> {
-    type Output = Vec3<T::Output>;
-    fn sub(self, rhs: T) -> Self::Output {
-        self.apply(|x| x - rhs)
-    }
-}
+impl_ele_arith!(Add, add);
+impl_ele_arith!(Sub, sub);
+impl_ele_arith!(Mul, mul);
+impl_ele_arith!(Div, div);
 
-impl<T: Mul + Copy> Mul<T> for Vec3<T> {
-    type Output = Vec3<T::Output>;
+impl_assign_arith!(AddAssign, add_assign);
+impl_assign_arith!(SubAssign, sub_assign);
+impl_assign_arith!(MulAssign, mul_assign);
+impl_assign_arith!(DivAssign, div_assign);
 
-    fn mul(self, rhs: T) -> Self::Output {
-        self.apply(|x| x * rhs)
-    }
-}
-
-impl<T: Div + Copy> Div<T> for Vec3<T> {
-    type Output = Vec3<T::Output>;
-
-    fn div(self, rhs: T) -> Self::Output {
-        self.apply(|x| x / rhs)
-    }
-}
-
-impl<T: AddAssign> AddAssign<Vec3<T>> for Vec3<T> {
-    fn add_assign(&mut self, rhs: Vec3<T>) {
-        self.0 += rhs.0;
-        self.1 += rhs.1;
-        self.2 += rhs.2;
-    }
-}
-
-impl<T: SubAssign> SubAssign<Vec3<T>> for Vec3<T> {
-    fn sub_assign(&mut self, rhs: Vec3<T>) {
-        self.0 -= rhs.0;
-        self.1 -= rhs.1;
-        self.2 -= rhs.2;
-    }
-}
-
-impl<T: MulAssign> MulAssign<Vec3<T>> for Vec3<T> {
-    fn mul_assign(&mut self, rhs: Vec3<T>) {
-        self.0 *= rhs.0;
-        self.1 *= rhs.1;
-        self.2 *= rhs.2;
-    }
-}
-
-impl<T: MulAssign + Copy> MulAssign<T> for Vec3<T> {
-    fn mul_assign(&mut self, rhs: T) {
-        self.0 *= rhs;
-        self.1 *= rhs;
-        self.2 *= rhs;
-    }
-}
-
-impl<T: DivAssign + Copy> DivAssign<T> for Vec3<T> {
-    fn div_assign(&mut self, rhs: T) {
-        self.0 /= rhs;
-        self.1 /= rhs;
-        self.2 /= rhs;
-    }
-}
+impl_ele_assign_arith!(AddAssign, add_assign);
+impl_ele_assign_arith!(SubAssign, sub_assign);
+impl_ele_assign_arith!(MulAssign, mul_assign);
+impl_ele_assign_arith!(DivAssign, div_assign);
 
 /// unary neg
 impl<T: Neg> Neg for Vec3<T> {
     type Output = Vec3<T::Output>;
 
     fn neg(self) -> Self::Output {
-        Vec3(-self.0, -self.1, -self.2)
+        Vec3(-self.x, -self.y, -self.z)
     }
 }
 
 impl<T: Display> Display for Vec3<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {}, {})", self.0, self.1, self.2)
+        write!(f, "({}, {}, {})", self.x, self.y, self.z)
     }
 }
 
 /// casting to f64
 impl<T: NumCast> Vec3<T> {
     pub fn to_f64(&self) -> Vec3<f64> {
-        Vec3(
-            self.0.to_f64().unwrap(),
-            self.1.to_f64().unwrap(),
-            self.2.to_f64().unwrap(),
-        )
+        self.apply(|t| t.to_f64().unwrap())
     }
 }
 
@@ -161,15 +151,6 @@ impl<T: Num + Copy> Vec3<T> {
     }
     pub fn one() -> Vec3<T> {
         Vec3(T::one(), T::one(), T::one())
-    }
-    pub fn x(&self) -> T {
-        self.0
-    }
-    pub fn y(&self) -> T {
-        self.1
-    }
-    pub fn z(&self) -> T {
-        self.2
     }
 }
 
@@ -187,7 +168,7 @@ impl<T: Copy + SampleUniform> Vec3<T> {
 
 impl<T: NumOps + NumCast + Copy> Vec3<T> {
     pub fn length_square(&self) -> T {
-        self.0 * self.0 + self.1 * self.1 + self.2 * self.2
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
     pub fn length(&self) -> f64 {
         self.length_square().to_f64().unwrap().sqrt()
@@ -197,10 +178,10 @@ impl<T: NumOps + NumCast + Copy> Vec3<T> {
     }
 }
 
-/// various products
+/// various arithmetic functions that requires `T` to be `Num`.
 impl<T: Num + Copy> Vec3<T> {
     pub fn dot(&self, rhs: Self) -> T {
-        self.0 * rhs.0 + self.1 * rhs.1 + self.2 * rhs.2
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
     pub fn ele_mul(&self, rhs: Self) -> Vec3<T> {
@@ -209,9 +190,9 @@ impl<T: Num + Copy> Vec3<T> {
 
     pub fn cross(&self, rhs: Self) -> Vec3<T> {
         Vec3(
-            self.1 * rhs.2 - self.2 * rhs.1,
-            T::zero() - (self.0 * rhs.2 - self.2 * rhs.0),
-            self.0 * rhs.1 - self.1 * rhs.0,
+            self.y * rhs.z - self.z * rhs.y,
+            T::zero() - (self.x * rhs.z - self.z * rhs.x),
+            self.x * rhs.y - self.y * rhs.x,
         )
     }
 }

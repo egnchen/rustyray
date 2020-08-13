@@ -7,16 +7,6 @@ pub mod vec;
 
 /// Color
 pub type Color = Vec3<f32>;
-impl Color {
-    #[inline(always)]
-    pub fn new(v1: f32, v2: f32, v3: f32) -> Color {
-        Color {
-            0: v1,
-            1: v2,
-            2: v3,
-        }
-    }
-}
 
 pub struct Picture {
     pub width: usize,
