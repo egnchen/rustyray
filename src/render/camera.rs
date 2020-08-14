@@ -52,7 +52,7 @@ impl Camera {
         let mut rng = thread_rng();
         let dis = Uniform::new(-1.0, 1.0);
         loop {
-            let p = Vec3(dis.sample(&mut rng), dis.sample(&mut rng), 0.0);
+            let p = Vec3::new(dis.sample(&mut rng), dis.sample(&mut rng), 0.0);
             if p.length_square() < 1.0 {
                 return p;
             }
@@ -62,7 +62,7 @@ impl Camera {
     #[inline(always)]
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
         let r = Self::get_rand_in_unit_disk() * self.lens_radius;
-        let offset = self.u * r.x() + self.v * r.y();
+        let offset = self.u * r.x + self.v * r.y;
         let orig = self.origin + offset;
         let mut rng = thread_rng();
         Ray {

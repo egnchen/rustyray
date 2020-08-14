@@ -31,8 +31,8 @@ impl Distribution<Ray> for Standard {
         let (d0, d1, d2) = rng.gen();
         let (o0, o1, o2) = rng.gen();
         Ray {
-            dir: Vec3(d0, d1, d2),
-            orig: Vec3(o0, o1, o2),
+            dir: Vec3::new(d0, d1, d2),
+            orig: Vec3::new(o0, o1, o2),
             t: 1.0,
         }
     }

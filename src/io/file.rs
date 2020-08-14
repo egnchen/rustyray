@@ -24,7 +24,7 @@ pub fn write_to_ppm(p: &Picture, filename: &str) -> io::Result<()> {
         for _j in 0..p.height {
             let c = &p.data[v];
             let c = Color24::from(c);
-            write!(&mut stream, " {} {} {}", c.0, c.1, c.2)?;
+            write!(&mut stream, " {} {} {}", c.x, c.y, c.z)?;
             v += 1;
         }
         write!(&mut stream, "\n")?;
@@ -39,7 +39,7 @@ pub fn write_to_png(p: &Picture, filename: &str) {
     let buf = ImageBuffer::from_fn(w, h, |x, y| {
         let v = (y * w + x) as usize;
         let c = Color24::from(&p.data[v]);
-        image::Rgb([c.0, c.1, c.2])
+        image::Rgb([c.x, c.y, c.z])
     });
     buf.save(filename).unwrap();
 }

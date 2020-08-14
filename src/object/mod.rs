@@ -103,7 +103,7 @@ pub fn make_bouncing_sphere_object(
     mat: &MaterialObject,
 ) -> HittableObject {
     let mut c1 = center;
-    c1.1 += height;
+    c1.x += height;
     Arc::new(MovingSphere::new(center, c1, t0, t1, radius, &mat))
 }
 

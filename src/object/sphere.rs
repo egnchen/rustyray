@@ -29,8 +29,8 @@ impl Sphere {
 
     #[inline(always)]
     fn get_sphere_uv(&self, p: Vec3<f64>) -> (f64, f64) {
-        let phi = p.z().atan2(p.x());
-        let theta = (p.y() / self.radius).asin();
+        let phi = p.z.atan2(p.x);
+        let theta = (p.y / self.radius).asin();
         (0.5 - phi / (2.0 * PI), 0.5 + theta / PI)
     }
 }
@@ -130,8 +130,8 @@ impl MovingSphere {
 
     #[inline(always)]
     fn get_sphere_uv(&self, p: Vec3<f64>) -> (f64, f64) {
-        let phi = p.z().atan2(p.x());
-        let theta = (p.y() / self.radius).asin();
+        let phi = p.z.atan2(p.x);
+        let theta = (p.y / self.radius).asin();
         (0.5 - phi / (2.0 * PI), 0.5 + theta / PI)
     }
 }

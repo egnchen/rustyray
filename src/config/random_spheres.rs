@@ -21,12 +21,12 @@ pub struct RandomSphereScene {
 impl SceneConfig for RandomSphereScene {
     // configure the camera
     fn get_camera(&self) -> Camera {
-        let look_from = Vec3(13.0, 2.0, 4.0);
-        let look_at = Vec3(0.0, 0.0, 0.0);
+        let look_from = Vec3::new(13.0, 2.0, 4.0);
+        let look_at = Vec3::new(0.0, 0.0, 0.0);
         Camera::look_from(
             look_from,
             look_at,
-            Vec3(0.0, 1.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
             20.0,
             1.5,
             0.0,
@@ -47,7 +47,7 @@ impl SceneConfig for RandomSphereScene {
                 even_color: Arc::new(SolidColor::new(0.2, 0.3, 0.1)),
             }),
         });
-        let sphere_ground = make_sphere_object(Vec3(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
+        let sphere_ground = make_sphere_object(Vec3::new(0.0, -1000.0, -1.0), 1000.0, &mat_ground);
         world.add_hittable(&sphere_ground);
 
         let mut rng = thread_rng();
@@ -56,7 +56,7 @@ impl SceneConfig for RandomSphereScene {
                 if j == 0 {
                     continue;
                 }
-                let center = Vec3(
+                let center = Vec3::new(
                     i as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
                     0.3,
                     j as f64 * 1.2 + rng.gen_range(-0.5, 0.5),
@@ -91,11 +91,11 @@ impl SceneConfig for RandomSphereScene {
         let m2 = make_material_object(Dielectric::new(1.33, Vec3::one()));
         let m3 = make_material_object(Metal {
             fuzziness: 0.1,
-            albedo: Vec3(0.7, 0.6, 0.5),
+            albedo: Vec3::new(0.7, 0.6, 0.5),
         });
-        let b1 = make_sphere_object(Vec3(-4.0, 1.0, 0.0), 1.0, &m1);
-        let b2 = make_sphere_object(Vec3(0.0, 1.0, 0.0), 1.0, &m2);
-        let b3 = make_sphere_object(Vec3(4.0, 1.0, 0.0), 1.0, &m3);
+        let b1 = make_sphere_object(Vec3::new(-4.0, 1.0, 0.0), 1.0, &m1);
+        let b2 = make_sphere_object(Vec3::new(0.0, 1.0, 0.0), 1.0, &m2);
+        let b3 = make_sphere_object(Vec3::new(4.0, 1.0, 0.0), 1.0, &m3);
         world.add_hittable(&b1);
         world.add_hittable(&b2);
         world.add_hittable(&b3);

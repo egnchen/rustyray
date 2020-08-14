@@ -40,17 +40,17 @@ impl Perlin {
     }
 
     pub fn noise(&self, p: Vec3<f64>, frequency: f64) -> f32 {
-        let Vec3(i, j, k) = p.apply(|x| ((frequency * x) as usize) & 255);
-        self.random_float[(self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize]
+        let Vec3{x, y, z} = p.apply(|x| ((frequency * x) as usize) & 255);
+        self.random_float[(self.perm_x[x] ^ self.perm_y[y] ^ self.perm_z[z]) as usize]
     }
 
     pub fn smoothed_noise(&self, p: Vec3<f64>, frequency: f64) -> f32 {
         let p = p * frequency;
         // Hermitian smoothing
         let h = |x: f64| x * x * (3.0 - 2.0 * x);
-        let Vec3(u, v, w) = p.apply(|x| h(x - x.floor()));
+        let Vec3{x: u, y: v, z: w} = p.apply(|x| h(x - x.floor()));
         // get fractional part
-        let Vec3(i, j, k) = p.apply(|x| x.floor() as usize);
+        let Vec3{x: i, y: j, z: k} = p.apply(|x| x.floor() as usize);
         let mut c: [[[f32; 2]; 2]; 2] = [[[f32::default(); 2]; 2]; 2];
         for di in 0..2 {
             for dj in 0..2 {
@@ -67,8 +67,8 @@ impl Perlin {
 
     pub fn smoothed_shifted_noise(&self, p: Vec3<f64>, frequency: f64) -> f32 {
         let p = p * frequency;
-        let Vec3(u, v, w) = p.apply(|x| x - x.floor());
-        let Vec3(i, j, k) = p.apply(|x| x.floor() as usize);
+        let Vec3{x: u, y: v, z: w} = p.apply(|x| x - x.floor());
+        let Vec3{x: i, y: j, z: k} = p.apply(|x| x.floor() as usize);
         let mut c: [[[Vec3<f64>; 2]; 2]; 2] = [[[Vec3::default(); 2]; 2]; 2];
         for di in 0..2 {
             for dj in 0..2 {
@@ -103,14 +103,14 @@ impl Perlin {
 
     #[inline(always)]
     fn perlin_interpolate(c: &[[[Vec3<f64>; 2]; 2]; 2], u: f64, v: f64, w: f64) -> f32 {
-        let Vec3(hu, hv, hw) = Vec3(u, v, w).apply(|x| x * x * (3.0 - 2.0 * x));
+        let Vec3{x: hu, y: hv, z: hw} = Vec3::new(u, v, w).apply(|x| x * x * (3.0 - 2.0 * x));
         let mut ret: f64 = 0.0;
         for i in 0..2 {
             for j in 0..2 {
                 for k in 0..2 {
                     let val = c[i][j][k];
                     let (i, j, k) = (i as f64, j as f64, k as f64);
-                    let weight = Vec3(u - i, v - j, w - k);
+                    let weight = Vec3::new(u - i, v - j, w - k);
                     ret += (i * hu + (1.0 - i) * (1.0 - hu))
                         * (j * hv + (1.0 - j) * (1.0 - hv))
                         * (k * hw + (1.0 - k) * (1.0 - hw))

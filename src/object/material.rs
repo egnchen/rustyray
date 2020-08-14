@@ -26,7 +26,7 @@ fn rand_unit_vector() -> Vec3<f64> {
     let a: f64 = r.gen_range(0.0, 2.0 * std::f64::consts::PI);
     let z: f64 = r.gen_range(-1.0, 1.0);
     let r: f64 = (1.0 - z * z).sqrt();
-    Vec3(r * a.cos(), r * a.sin(), z)
+    Vec3::new(r * a.cos(), r * a.sin(), z)
 }
 
 impl Material for LambertianDiffuse {

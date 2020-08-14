@@ -38,7 +38,7 @@ pub struct CheckerTexture {
 
 impl Texture for CheckerTexture {
     fn get_color(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
-        let s = (10.0 * p.0).sin() * (10.0 * p.1).sin() * (10.0 * p.2).sin();
+        let s = (10.0 * p.x).sin() * (10.0 * p.y).sin() * (10.0 * p.z).sin();
         if s < 0.0 {
             self.odd_color.get_color(u, v, p)
         } else {
@@ -89,7 +89,7 @@ impl Texture for MarbleTexture {
         Vec3::<f32>::one()
             * 0.5
             * (1.0
-                + (self.scale * p.z() as f32 + self.turbulence * self.generator.turbulence(p, 7))
+                + (self.scale * p.z as f32 + self.turbulence * self.generator.turbulence(p, 7))
                     .sin())
     }
 }

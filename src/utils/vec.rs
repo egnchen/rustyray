@@ -20,10 +20,11 @@ pub struct Vec3<T> {
 }
 
 impl<T> Vec3<T> {
-    fn new(x: T, y: T, z: T) -> Vec3<T> {
+    pub fn new(x: T, y: T, z: T) -> Vec3<T> {
         Vec3 { x, y, z }
     }
 }
+
 impl<T: PartialEq> PartialEq for Vec3<T> {
     fn eq(&self, other: &Self) -> bool {
         self.x == other.x && self.y == other.y && self.z == other.z
@@ -44,7 +45,7 @@ impl<T: Copy> Vec3<T> {
 /// Macro to implement element-wise vector-to-vector arithmetic operation.
 macro_rules! impl_arith {
     ($tr: ident, $method: ident) => {
-        impl<T: $tr> $tr<Vec3<T>> for Vec3<T> {
+        impl<T: $tr + Copy> $tr<Vec3<T>> for Vec3<T> {
             type Output = Vec3<T::Output>;
             #[inline(always)]
             fn $method(self, rhs: Self) -> Self::Output {
@@ -92,7 +93,7 @@ macro_rules! impl_assign_arith {
 /// Macro to support element-wise vector-to-element assignment operations.
 macro_rules! impl_ele_assign_arith {
     ($tr: ident, $method: ident) => {
-        impl<T: $tr> $tr<T> for Vec3<T> {
+        impl<T: $tr + Copy> $tr<T> for Vec3<T> {
             #[inline(always)]
             fn $method(&mut self, rhs: T) {
                 self.x.$method(rhs);
@@ -128,7 +129,7 @@ impl<T: Neg> Neg for Vec3<T> {
     type Output = Vec3<T::Output>;
 
     fn neg(self) -> Self::Output {
-        Vec3(-self.x, -self.y, -self.z)
+        Vec3::new(-self.x, -self.y, -self.z)
     }
 }
 
@@ -139,18 +140,18 @@ impl<T: Display> Display for Vec3<T> {
 }
 
 /// casting to f64
-impl<T: NumCast> Vec3<T> {
+impl<T: NumCast + Copy> Vec3<T> {
     pub fn to_f64(&self) -> Vec3<f64> {
         self.apply(|t| t.to_f64().unwrap())
     }
 }
 
-impl<T: Num + Copy> Vec3<T> {
+impl<T: Num> Vec3<T> {
     pub fn zero() -> Vec3<T> {
-        Vec3(T::zero(), T::zero(), T::zero())
+        Vec3::new(T::zero(), T::zero(), T::zero())
     }
     pub fn one() -> Vec3<T> {
-        Vec3(T::one(), T::one(), T::one())
+        Vec3::new(T::one(), T::one(), T::one())
     }
 }
 
@@ -158,7 +159,7 @@ impl<T: Copy + SampleUniform> Vec3<T> {
     pub fn random(min: T, max: T) -> Vec3<T> {
         let mut rng = thread_rng();
         let dis = Uniform::new(min, max);
-        Vec3(
+        Vec3::new(
             dis.sample(&mut rng),
             dis.sample(&mut rng),
             dis.sample(&mut rng),
@@ -189,7 +190,7 @@ impl<T: Num + Copy> Vec3<T> {
     }
 
     pub fn cross(&self, rhs: Self) -> Vec3<T> {
-        Vec3(
+        Vec3::new(
             self.y * rhs.z - self.z * rhs.y,
             T::zero() - (self.x * rhs.z - self.z * rhs.x),
             self.x * rhs.y - self.y * rhs.x,

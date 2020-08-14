@@ -19,9 +19,9 @@ impl AABB {
         // One cannot iterate over tuple, so manually unroll the loop here...
         let d = &r.dir;
         let o = &r.orig;
-        let inv_d = 1.0 / d.0;
-        t0 = (self.min.0 - o.0) * inv_d;
-        t1 = (self.max.0 - o.0) * inv_d;
+        let inv_d = 1.0 / d.x;
+        t0 = (self.min.x - o.x) * inv_d;
+        t1 = (self.max.x - o.x) * inv_d;
         if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
@@ -30,9 +30,9 @@ impl AABB {
         if t_max <= t_min {
             return false;
         }
-        let inv_d = 1.0 / d.1;
-        t0 = (self.min.1 - o.1) * inv_d;
-        t1 = (self.max.1 - o.1) * inv_d;
+        let inv_d = 1.0 / d.y;
+        t0 = (self.min.y - o.y) * inv_d;
+        t1 = (self.max.y - o.y) * inv_d;
         if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
@@ -41,9 +41,9 @@ impl AABB {
         if t_max <= t_min {
             return false;
         }
-        let inv_d = 1.0 / d.2;
-        t0 = (self.min.2 - o.2) * inv_d;
-        t1 = (self.max.2 - o.2) * inv_d;
+        let inv_d = 1.0 / d.z;
+        t0 = (self.min.z - o.z) * inv_d;
+        t1 = (self.max.z - o.z) * inv_d;
         if inv_d < 0.0 {
             swap(&mut t0, &mut t1);
         }
@@ -58,35 +58,35 @@ impl AABB {
     pub fn union(&self, b: &AABB) -> AABB {
         let mut v0: Vec3<f64> = Default::default();
         let mut v1: Vec3<f64> = Default::default();
-        v0.0 = if self.min.0 < b.min.0 {
-            self.min.0
+        v0.x = if self.min.x < b.min.x {
+            self.min.x
         } else {
-            b.min.0
+            b.min.x
         };
-        v1.0 = if self.max.0 > b.max.0 {
-            self.max.0
+        v1.x = if self.max.x > b.max.x {
+            self.max.x
         } else {
-            b.max.0
+            b.max.x
         };
-        v0.1 = if self.min.1 < b.min.1 {
-            self.min.1
+        v0.y = if self.min.y < b.min.y {
+            self.min.y
         } else {
-            b.min.1
+            b.min.y
         };
-        v1.1 = if self.max.1 > b.max.1 {
-            self.max.1
+        v1.y = if self.max.y > b.max.y {
+            self.max.y
         } else {
-            b.max.1
+            b.max.y
         };
-        v0.2 = if self.min.2 < b.min.2 {
-            self.min.2
+        v0.z = if self.min.z < b.min.z {
+            self.min.z
         } else {
-            b.min.2
+            b.min.z
         };
-        v1.2 = if self.max.2 > b.max.2 {
-            self.max.2
+        v1.z = if self.max.z > b.max.z {
+            self.max.z
         } else {
-            b.max.2
+            b.max.z
         };
         AABB { min: v0, max: v1 }
     }

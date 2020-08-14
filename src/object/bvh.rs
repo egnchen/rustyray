@@ -71,24 +71,24 @@ impl BVHNode {
                 a.bounding_box()
                     .unwrap()
                     .min
-                    .0
-                    .partial_cmp(&b.bounding_box().unwrap().min.0)
+                    .x
+                    .partial_cmp(&b.bounding_box().unwrap().min.x)
                     .unwrap()
             },
             1 => |a: &HittableObject, b: &HittableObject| {
                 a.bounding_box()
                     .unwrap()
                     .min
-                    .1
-                    .partial_cmp(&b.bounding_box().unwrap().min.1)
+                    .y
+                    .partial_cmp(&b.bounding_box().unwrap().min.y)
                     .unwrap()
             },
             _ => |a: &HittableObject, b: &HittableObject| {
                 a.bounding_box()
                     .unwrap()
                     .min
-                    .2
-                    .partial_cmp(&b.bounding_box().unwrap().min.2)
+                    .z
+                    .partial_cmp(&b.bounding_box().unwrap().min.z)
                     .unwrap()
             },
         }
