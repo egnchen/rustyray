@@ -20,8 +20,8 @@ fn camera_benchmark(c: &mut Criterion) {
 fn aabb_hit_benchmark(c: &mut Criterion) {
     c.bench_function("Hit on an AABB", |b| {
         let aabb = AABB {
-            min: Vec3(1.0, 1.0, 1.0),
-            max: Vec3(-1.0, -1.0, -1.0),
+            min: Vec3::new(1.0, 1.0, 1.0),
+            max: Vec3::new(-1.0, -1.0, -1.0),
         };
         let mut rng = thread_rng();
         b.iter(move || aabb.hit(&rng.gen(), 0.001, f64::infinity()));
@@ -33,7 +33,7 @@ fn sphere_hit_benchmark(c: &mut Criterion) {
         let mat = make_material_object(LambertianDiffuse {
             texture: Arc::new(SolidColor::new(0.5, 0.5, 0.5)),
         });
-        let sphere = make_sphere_object(Vec3(0.0, 0.0, 0.0), 1.0, &mat);
+        let sphere = make_sphere_object(Vec3::new(0.0, 0.0, 0.0), 1.0, &mat);
         let mut rng = thread_rng();
         b.iter(move || sphere.hit(&rng.gen(), 0.001, f64::infinity()));
     });
