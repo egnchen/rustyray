@@ -1,7 +1,8 @@
 use rand::distributions::{Distribution, Uniform};
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
 
 use crate::utils::{Ray, Vec3};
+use num_traits::FloatConst;
 
 pub struct Camera {
     pub start_corner: Vec3<f64>,

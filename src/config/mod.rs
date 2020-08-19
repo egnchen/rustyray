@@ -1,7 +1,7 @@
-//! contain scene configurators
 use crate::object::World;
 use crate::render::Camera;
 
+pub mod cornell_box;
 pub mod random_spheres;
 pub mod two_spheres;
 

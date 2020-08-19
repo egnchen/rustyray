@@ -9,9 +9,6 @@ use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::thread_rng;
 
-// #[derive(Debug, Copy, Clone, Default)]
-// pub struct Vec3<T>(pub T, pub T, pub T);
-
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Vec3<T> {
     pub x: T,
@@ -129,7 +126,7 @@ impl<T: Neg> Neg for Vec3<T> {
     type Output = Vec3<T::Output>;
 
     fn neg(self) -> Self::Output {
-        Vec3::new(-self.x, -self.y, -self.z)
+        Vec3::new(self.x.neg(), self.y.neg(), self.z.neg())
     }
 }
 
