@@ -52,6 +52,8 @@ impl MultiRenderer {
         self.thread_count = thread_count;
     }
 
+    pub fn set_recursion_depth(&mut self, depth: usize) { self.recursion_depth = depth; }
+
     // essentially the same as DefaultRenderer here
     fn ray_color(world: &World, r: Ray, depth: usize) -> Color {
         // don't do tail-recursion :)
@@ -61,7 +63,7 @@ impl MultiRenderer {
         let mut ret = Color::zero();
         for _i in 0..depth {
             if let Some(h) = world.hit(&r, 0.001, f64::infinity()) {
-                // emisssive material
+                // emission material
                 ret += coeff * h.mat.emit(h.u, h.v, h.p);
                 if let Some(f) = h.mat.scatter(&r, &h) {
                     // scattering material

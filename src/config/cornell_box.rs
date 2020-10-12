@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use crate::config::SceneConfig;
+<<<<<<< HEAD
 use crate::object::cube::Cube;
+=======
+>>>>>>> origin/master
 use crate::object::material::DiffuseLight;
 use crate::object::rect::{XYRect, XZRect, YZRect};
 use crate::object::{
