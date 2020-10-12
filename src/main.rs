@@ -18,7 +18,7 @@ fn main() {
     let mut r = MultiRenderer::new(width, height);
     r.set_camera(s.get_camera());
     r.set_world(s.get_world());
-    r.set_pixel_sample(512);
+    r.set_pixel_sample(256);
     // fire it up
     println!("Start rendering scene {}...", s.get_name());
     let p = r

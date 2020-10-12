@@ -1,15 +1,12 @@
 use std::sync::Arc;
 
 use crate::config::SceneConfig;
-<<<<<<< HEAD
 use crate::object::cube::Cube;
-=======
->>>>>>> origin/master
 use crate::object::material::DiffuseLight;
 use crate::object::rect::{XYRect, XZRect, YZRect};
+use crate::object::rotate::RotateY;
 use crate::object::{
-    make_material_object, make_texture_object, Hittable, HittableObject, LambertianDiffuse,
-    SolidColor, World,
+    make_material_object, make_texture_object, HittableObject, LambertianDiffuse, SolidColor, World,
 };
 use crate::render::skybox::{ColorGradientSkyBox, SkyBox};
 use crate::render::Camera;
@@ -68,18 +65,20 @@ impl SceneConfig for CornellBoxScene {
             &white,
         ));
         let c2: HittableObject = Arc::new(Cube::new(
-            Vec3::new(130.0, 0.0, 65.0),
-            Vec3::new(295.0, 330.0, 230.0),
+            Vec3::new(130.0, 0.0, 100.0),
+            Vec3::new(295.0, 330.0, 300.0),
             &white,
         ));
+        let rc1: HittableObject = Arc::new(RotateY::new(&c1, -5.0));
+        let rc2: HittableObject = Arc::new(RotateY::new(&c2, 10.0));
         world.add_hittable(&left);
         world.add_hittable(&right);
         world.add_hittable(&down);
         world.add_hittable(&up);
         world.add_hittable(&behind);
         world.add_hittable(&lamp);
-        world.add_hittable(&c1);
-        world.add_hittable(&c2);
+        world.add_hittable(&rc1);
+        world.add_hittable(&rc2);
 
         // set up a dark skybox
         let sb: Arc<dyn SkyBox + Send + Sync> = Arc::new(ColorGradientSkyBox {

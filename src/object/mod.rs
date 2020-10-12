@@ -26,6 +26,8 @@ pub mod cube;
 pub mod rect;
 pub mod sphere;
 
+pub mod rotate;
+
 pub mod world;
 
 #[derive(Debug, Copy, Clone)]
