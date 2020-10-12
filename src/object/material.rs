@@ -10,7 +10,7 @@ pub struct FilteredRay {
 
 pub trait Material {
     fn get_type(&self) -> &'static str;
-    fn emit(&self, u: f64, v: f64, p: Vec3<f64>) -> Color {
+    fn emit(&self, _u: f64, _v: f64, _p: Vec3<f64>) -> Color {
         Color::zero()
     }
     fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay>;
@@ -158,7 +158,7 @@ impl Material for DiffuseLight {
         self.emit.get_color(u, v, p) * self.brightness
     }
 
-    fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
+    fn scatter(&self, _r: &Ray, _h: &HitRecord) -> Option<FilteredRay> {
         None
     }
 }

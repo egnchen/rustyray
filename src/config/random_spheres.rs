@@ -19,6 +19,10 @@ pub struct RandomSphereScene {
 }
 
 impl SceneConfig for RandomSphereScene {
+    fn get_name(&self) -> &'static str {
+        "RandomSpheres"
+    }
+
     // configure the camera
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(13.0, 2.0, 4.0);

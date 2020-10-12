@@ -18,10 +18,14 @@ use crate::utils::{Ray, Vec3};
 
 pub mod aabb;
 pub mod bvh;
+
 pub mod material;
+pub mod texture;
+
+pub mod cube;
 pub mod rect;
 pub mod sphere;
-pub mod texture;
+
 pub mod world;
 
 #[derive(Debug, Copy, Clone)]

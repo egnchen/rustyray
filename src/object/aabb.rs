@@ -55,6 +55,7 @@ impl AABB {
         return true;
     }
 
+    #[inline(always)]
     pub fn union(&self, b: &AABB) -> AABB {
         let mut v0: Vec3<f64> = Default::default();
         let mut v1: Vec3<f64> = Default::default();

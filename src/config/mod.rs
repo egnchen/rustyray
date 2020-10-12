@@ -6,6 +6,7 @@ pub mod random_spheres;
 pub mod two_spheres;
 
 pub trait SceneConfig {
+    fn get_name(&self) -> &'static str;
     fn get_camera(&self) -> Camera;
     fn get_world(&self) -> World;
 }

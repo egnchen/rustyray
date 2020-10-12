@@ -3,10 +3,11 @@ use std::sync::Arc;
 use crate::config::SceneConfig;
 use crate::io::file::read_picture;
 use crate::object::material::DiffuseLight;
+use crate::object::rect::{XYRect, YZRect};
 use crate::object::texture::{ImageTexture, MarbleTexture};
 use crate::object::{
-    make_material_object, make_sphere_object, make_texture_object, LambertianDiffuse, NoiseTexture,
-    SolidColor, World,
+    make_material_object, make_sphere_object, make_texture_object, HittableObject,
+    LambertianDiffuse, NoiseTexture, SolidColor, World,
 };
 use crate::render::skybox::{ColorGradientSkyBox, SkyBox};
 use crate::render::Camera;
@@ -16,6 +17,10 @@ use crate::utils::{Color, Vec3};
 pub struct TwoSpheresScene {}
 
 impl SceneConfig for TwoSpheresScene {
+    fn get_name(&self) -> &'static str {
+        "TwoSpheres"
+    }
+
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(13.0, 2.0, 4.0);
         let look_at = Vec3::new(0.0, 0.0, 0.0);
@@ -44,7 +49,7 @@ impl SceneConfig for TwoSpheresScene {
         });
         let glowing_material = make_material_object(DiffuseLight {
             emit: image_texture.clone(),
-            brightness: 2.0,
+            brightness: 10.0,
         });
         let globe_mat = make_material_object(LambertianDiffuse {
             texture: make_texture_object(NoiseTexture {
