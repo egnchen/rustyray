@@ -20,6 +20,7 @@ impl Ray {
     pub fn time(&self) -> f64 {
         self.t
     }
+    #[inline(always)]
     pub fn at(&self, t: f64) -> Vec3<f64> {
         self.orig + self.dir * t
     }
@@ -28,6 +29,7 @@ impl Ray {
 // for debug purposes
 impl Distribution<Ray> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Ray {
+        // TODO make this more concise
         let (d0, d1, d2) = rng.gen();
         let (o0, o1, o2) = rng.gen();
         Ray {

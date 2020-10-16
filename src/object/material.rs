@@ -162,3 +162,24 @@ impl Material for DiffuseLight {
         None
     }
 }
+
+pub struct Isotropic {
+    pub albedo: TextureObject,
+}
+
+impl Material for Isotropic {
+    fn get_type(&self) -> &'static str {
+        "Isotropic"
+    }
+
+    fn scatter(&self, r: &Ray, h: &HitRecord) -> Option<FilteredRay> {
+        Some(FilteredRay {
+            attenuation: self.albedo.get_color(h.u, h.v, h.p),
+            scattered: Ray {
+                orig: h.p,
+                dir: rand_unit_vector(),
+                t: r.t,
+            },
+        })
+    }
+}
