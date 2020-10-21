@@ -69,16 +69,14 @@ impl SceneConfig for CornellBoxScene {
         let rc2 = make_hittable(RotateY::new(&c2, 10.0));
         let black_color = make_texture(SolidColor::new(0.0, 0.0, 0.0));
         let white_color = make_texture(SolidColor::new(1.0, 1.0, 1.0));
-        let mrc1 = make_hittable(ConstantMedium::new(&rc1, 0.01, &white_color));
-        let mrc2 = make_hittable(ConstantMedium::new(&rc2, 0.01, &black_color));
         world.add_hittable(&left);
         world.add_hittable(&right);
         world.add_hittable(&down);
         world.add_hittable(&up);
         world.add_hittable(&behind);
         world.add_hittable(&lamp);
-        world.add_hittable(&mrc1);
-        world.add_hittable(&mrc2);
+        world.add_hittable(&rc1);
+        world.add_hittable(&rc2);
 
         // set up a dark skybox
         let sb: Arc<dyn SkyBox + Send + Sync> = Arc::new(ColorGradientSkyBox {
