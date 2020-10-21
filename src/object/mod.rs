@@ -29,6 +29,7 @@ pub mod sphere;
 pub mod rotate;
 
 pub mod constant_medium;
+pub mod container;
 pub mod world;
 
 #[derive(Debug, Copy, Clone)]

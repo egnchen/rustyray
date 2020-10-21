@@ -70,7 +70,7 @@ impl SceneConfig for TwoSpheresScene {
             v2: Color::zero(),
         });
         world.set_skybox(&sb);
-        world.update_bounding_box();
+        world.update_metadata();
 
         world
     }

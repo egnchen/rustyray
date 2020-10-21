@@ -103,7 +103,7 @@ impl SceneConfig for RandomSphereScene {
         world.add_hittable(&b1);
         world.add_hittable(&b2);
         world.add_hittable(&b3);
-        world.update_bounding_box();
+        world.update_metadata();
         world
     }
 }

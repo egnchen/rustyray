@@ -2,6 +2,7 @@ use crate::object::World;
 use crate::render::Camera;
 
 pub mod cornell_box;
+pub mod next_week_final_scene;
 pub mod random_spheres;
 pub mod random_spheres_night;
 pub mod two_spheres;

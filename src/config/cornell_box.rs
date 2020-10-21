@@ -94,7 +94,7 @@ impl SceneConfig for CornellBoxScene {
         });
         world.set_skybox(&sb);
 
-        world.update_bounding_box();
+        world.update_metadata();
         world
     }
 }
