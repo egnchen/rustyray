@@ -17,10 +17,6 @@ use crate::utils::{Color, Vec3};
 pub struct TwoSpheresScene {}
 
 impl SceneConfig for TwoSpheresScene {
-    fn get_name(&self) -> &'static str {
-        "TwoSpheres"
-    }
-
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(13.0, 2.0, 4.0);
         let look_at = Vec3::new(0.0, 0.0, 0.0);

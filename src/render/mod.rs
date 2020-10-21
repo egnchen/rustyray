@@ -8,7 +8,7 @@ pub mod camera;
 pub mod filter;
 pub mod skybox;
 
-mod multi_renderer;
+pub mod multi_renderer;
 
 pub trait Renderer {
     fn render(&self) -> Result<Picture, &'static str>;

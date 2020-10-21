@@ -7,6 +7,7 @@ use rand::thread_rng;
 
 use crate::object::{Hittable, World};
 use crate::render::filter::Filter;
+use crate::render::multi_renderer::PresetLevel::{Low, Medium};
 use crate::render::{Camera, GammaFilter, Renderer};
 use crate::utils::{Color, Picture, Ray};
 
@@ -22,11 +23,31 @@ pub struct MultiRenderer {
     thread_count: usize,
 }
 
+pub enum PresetLevel {
+    Low,
+    Medium,
+    High,
+    Ultra,
+}
+
+impl PresetLevel {
+    pub fn from(num: usize) -> Option<Self> {
+        match num {
+            0 => Some(PresetLevel::Low),
+            1 => Some(PresetLevel::Medium),
+            2 => Some(PresetLevel::High),
+            3 => Some(PresetLevel::Ultra),
+            _ => None,
+        }
+    }
+}
+
 impl MultiRenderer {
-    pub fn new(width: usize, height: usize) -> MultiRenderer {
+    pub fn new() -> MultiRenderer {
+        // use low preset for default
         MultiRenderer {
-            width,
-            height,
+            width: 128,
+            height: 128,
             camera: Arc::new(None),
             world: Arc::new(None),
             sample_per_unit: 128,
@@ -52,7 +73,32 @@ impl MultiRenderer {
         self.thread_count = thread_count;
     }
 
-    pub fn set_recursion_depth(&mut self, depth: usize) { self.recursion_depth = depth; }
+    pub fn set_recursion_depth(&mut self, depth: usize) {
+        self.recursion_depth = depth;
+    }
+
+    pub fn set_render_preset(&mut self, preset: PresetLevel) {
+        let aspect = Option::as_ref(&self.camera).unwrap().get_aspect_ratio();
+        match preset {
+            PresetLevel::Low => {
+                self.sample_per_unit = 128;
+                self.height = 128;
+            }
+            PresetLevel::Medium => {
+                self.sample_per_unit = 512;
+                self.height = 256;
+            }
+            PresetLevel::High => {
+                self.sample_per_unit = 1024;
+                self.height = 512;
+            }
+            PresetLevel::Ultra => {
+                self.sample_per_unit = 8192;
+                self.height = 1024;
+            }
+        }
+        self.width = (self.height as f64 * aspect) as usize;
+    }
 
     // essentially the same as DefaultRenderer here
     fn ray_color(world: &World, r: Ray, depth: usize) -> Color {

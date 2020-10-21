@@ -1,8 +1,8 @@
+use num_traits::FloatConst;
 use rand::distributions::{Distribution, Uniform};
 use rand::{thread_rng, Rng};
 
 use crate::utils::{Ray, Vec3};
-use num_traits::FloatConst;
 
 pub struct Camera {
     pub start_corner: Vec3<f64>,
@@ -71,5 +71,9 @@ impl Camera {
             dir: self.start_corner + self.horizontal * u + self.vertical * v - orig,
             t: self.t_range.sample(&mut rng),
         }
+    }
+
+    pub fn get_aspect_ratio(&self) -> f64 {
+        self.horizontal.length() / self.vertical.length()
     }
 }

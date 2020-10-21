@@ -16,15 +16,11 @@ use crate::render::skybox::{ColorGradientSkyBox, SkyBox};
 use crate::render::Camera;
 use crate::utils::{Color, Vec3};
 
-pub struct RandomSphereNightScene {
+pub struct RandomSpheresNightScene {
     pub bounce: bool,
 }
 
-impl SceneConfig for RandomSphereNightScene {
-    fn get_name(&self) -> &'static str {
-        "RandomSpheresNight"
-    }
-
+impl SceneConfig for RandomSpheresNightScene {
     // configure the camera
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(12.0, 3.0, 4.0);

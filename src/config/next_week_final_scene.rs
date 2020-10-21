@@ -23,10 +23,6 @@ use crate::utils::{Color, Picture, Vec3};
 pub struct NextWeekFinalScene {}
 
 impl SceneConfig for NextWeekFinalScene {
-    fn get_name(&self) -> &'static str {
-        "NextWeekFinalScene"
-    }
-
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(478.0, 278.0, -600.0);
         let look_at = Vec3::new(278.0, 278.0, 0.0);
@@ -117,14 +113,14 @@ impl SceneConfig for NextWeekFinalScene {
         let ms: HittableObject = Arc::new(Sphere::new(
             Vec3::new(0.0, 150.0, 145.0),
             50.0,
-            &(Arc::new(Metal::new(50.0, Vec3::new(0.8, 0.8, 0.9))) as MaterialObject),
+            &(Arc::new(Metal::new(5.0, Vec3::new(0.8, 0.8, 0.9))) as MaterialObject),
         ));
         world.add_hittable(&ms);
 
         let b_mat: MaterialObject = Arc::new(Dielectric::new(1.5, Vec3::one()));
         // a fog sphere
         let boundary: HittableObject =
-            Arc::new(Sphere::new(Vec3::new(360.0, 150.0, 45.0), 50.0, &b_mat));
+            Arc::new(Sphere::new(Vec3::new(360.0, 150.0, 45.0), 70.0, &b_mat));
         world.add_hittable(&boundary);
         let fog_tex: TextureObject = Arc::new(SolidColor::new(0.2, 0.4, 0.9));
         let cs: HittableObject = Arc::new(ConstantMedium::new(&boundary, 0.2, &fog_tex));

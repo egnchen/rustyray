@@ -14,15 +14,11 @@ use crate::object::{
 use crate::render::Camera;
 use crate::utils::Vec3;
 
-pub struct RandomSphereScene {
+pub struct RandomSpheresScene {
     pub bounce: bool,
 }
 
-impl SceneConfig for RandomSphereScene {
-    fn get_name(&self) -> &'static str {
-        "RandomSpheres"
-    }
-
+impl SceneConfig for RandomSpheresScene {
     // configure the camera
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(13.0, 2.0, 4.0);

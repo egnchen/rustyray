@@ -6,7 +6,6 @@ use crate::object::cube::Cube;
 use crate::object::material::DiffuseLight;
 use crate::object::rect::{XYRect, XZRect, YZRect};
 use crate::object::rotate::RotateY;
-use crate::object::texture::HashTexture;
 use crate::object::{
     make_material_object, make_texture_object, HittableObject, LambertianDiffuse, SolidColor,
     TextureObject, World,
@@ -18,10 +17,6 @@ use crate::utils::{Color, Vec3};
 pub struct CornellBoxScene {}
 
 impl SceneConfig for CornellBoxScene {
-    fn get_name(&self) -> &'static str {
-        "CornellBox"
-    }
-
     fn get_camera(&self) -> Camera {
         let look_from = Vec3::new(273.0, 273.0, 1300.0);
         let look_at = Vec3::new(273.0, 273.0, 0.0);

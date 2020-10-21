@@ -11,9 +11,9 @@ opt-level = 2
 num-traits = "0.2"
 rand = "0.7"
 image = "0.23"
-indicatif = "0.14"
 num_cpus = "1.10"
 crossbeam = "0.7"
+clap = "2.30"
 
 [dev-dependencies]
 criterion = "0.3"
