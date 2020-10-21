@@ -1,7 +1,6 @@
 use std::mem::swap;
 
 use crate::utils::{Ray, Vec3};
-use std::any::Any;
 
 #[derive(Default, Clone)]
 pub struct AABB {
@@ -42,7 +41,7 @@ impl AABB {
         }
         t0 = (self.min.z - o.z) / d.z;
         t1 = (self.max.z - o.z) / d.z;
-        if d.z < 0.0  {
+        if d.z < 0.0 {
             swap(&mut t0, &mut t1);
         }
         t_min = t_min.max(t0);
@@ -55,12 +54,16 @@ impl AABB {
 
     #[inline(always)]
     pub fn union(&self, b: &AABB) -> AABB {
-        let v0 = Vec3::new(self.min.x.min(b.min.x),
-                           self.min.y.min(b.min.y),
-                           self.min.z.min(b.min.z));
-        let v1 = Vec3::new(self.max.x.max(b.max.x),
-                           self.max.y.max(b.max.y),
-                           self.max.z.max(b.max.z));
+        let v0 = Vec3::new(
+            self.min.x.min(b.min.x),
+            self.min.y.min(b.min.y),
+            self.min.z.min(b.min.z),
+        );
+        let v1 = Vec3::new(
+            self.max.x.max(b.max.x),
+            self.max.y.max(b.max.y),
+            self.max.z.max(b.max.z),
+        );
         AABB { min: v0, max: v1 }
     }
 }

@@ -1,10 +1,6 @@
 extern crate clap;
 
-use std::any::Any;
-
 use clap::{App, Arg};
-use rand::prelude::StdRng;
-use rand::thread_rng;
 
 use ray_tracer::config::cornell_box::CornellBoxScene;
 use ray_tracer::config::next_week_final_scene::NextWeekFinalScene;

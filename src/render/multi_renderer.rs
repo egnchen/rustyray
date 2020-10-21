@@ -7,7 +7,6 @@ use rand::thread_rng;
 
 use crate::object::{Hittable, World};
 use crate::render::filter::Filter;
-use crate::render::multi_renderer::PresetLevel::{Low, Medium};
 use crate::render::{Camera, GammaFilter, Renderer};
 use crate::utils::{Color, Picture, Ray};
 

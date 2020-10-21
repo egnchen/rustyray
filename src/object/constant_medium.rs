@@ -3,10 +3,8 @@ use std::sync::Arc;
 use rand::{thread_rng, Rng};
 
 use crate::object::aabb::AABB;
-use crate::object::material::{FilteredRay, Isotropic};
-use crate::object::{
-    Face, HitRecord, Hittable, HittableObject, Material, MaterialObject, TextureObject,
-};
+use crate::object::material::Isotropic;
+use crate::object::{Face, HitRecord, Hittable, HittableObject, MaterialObject, TextureObject};
 use crate::utils::{Ray, Vec3};
 
 pub struct ConstantMedium {

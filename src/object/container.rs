@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use crate::object::aabb::AABB;
 use crate::object::bvh::BVHNode;
 use crate::object::{HitRecord, Hittable, HittableObject};

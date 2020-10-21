@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use crate::object::aabb::AABB;
-use crate::object::bvh::BVHNode;
 use crate::object::container::Container;
 use crate::object::{HitRecord, Hittable, HittableObject};
 use crate::render::skybox::{ColorGradientSkyBox, SkyBox};

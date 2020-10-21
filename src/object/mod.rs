@@ -95,15 +95,26 @@ pub type MaterialObject = Arc<dyn Material + Send + Sync>;
 /// Thread-safe, read-only objects that implement `Texture` trait
 pub type TextureObject = Arc<dyn Texture + Send + Sync>;
 
-pub fn make_material_object(m: impl Material + Send + Sync + 'static) -> MaterialObject {
+/// These three function exists because explicit type conversion is needed
+/// to make these objects.
+
+pub fn make_hittable(h: impl Hittable + Send + Sync + 'static) -> HittableObject {
+    Arc::new(h)
+}
+
+pub fn make_material(m: impl Material + Send + Sync + 'static) -> MaterialObject {
     Arc::new(m)
 }
 
-pub fn make_sphere_object(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> HittableObject {
-    Arc::new(Sphere::new(center, radius, &mat))
+pub fn make_texture(t: impl Texture + Send + Sync + 'static) -> TextureObject {
+    Arc::new(t)
 }
 
-pub fn make_bouncing_sphere_object(
+pub fn make_sphere(center: Vec3<f64>, radius: f64, mat: &MaterialObject) -> HittableObject {
+    make_hittable(Sphere::new(center, radius, &mat))
+}
+
+pub fn make_bouncing_sphere(
     center: Vec3<f64>,
     radius: f64,
     height: f64,
@@ -113,9 +124,5 @@ pub fn make_bouncing_sphere_object(
 ) -> HittableObject {
     let mut c1 = center;
     c1.x += height;
-    Arc::new(MovingSphere::new(center, c1, t0, t1, radius, &mat))
-}
-
-pub fn make_texture_object(t: impl Texture + Send + Sync + 'static) -> TextureObject {
-    Arc::new(t)
+    make_hittable(MovingSphere::new(center, c1, t0, t1, radius, &mat))
 }

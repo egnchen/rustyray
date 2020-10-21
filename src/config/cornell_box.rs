@@ -7,8 +7,7 @@ use crate::object::material::DiffuseLight;
 use crate::object::rect::{XYRect, XZRect, YZRect};
 use crate::object::rotate::RotateY;
 use crate::object::{
-    make_material_object, make_texture_object, HittableObject, LambertianDiffuse, SolidColor,
-    TextureObject, World,
+    make_hittable, make_material, make_texture, LambertianDiffuse, SolidColor, World,
 };
 use crate::render::skybox::{ColorGradientSkyBox, SkyBox};
 use crate::render::Camera;
@@ -34,45 +33,44 @@ impl SceneConfig for CornellBoxScene {
     }
 
     fn get_world(&self) -> World {
-        let red = make_material_object(LambertianDiffuse {
-            texture: make_texture_object(SolidColor::new(0.65, 0.05, 0.05)),
+        let red = make_material(LambertianDiffuse {
+            texture: make_texture(SolidColor::new(0.65, 0.05, 0.05)),
         });
-        let white = make_material_object(LambertianDiffuse {
-            texture: make_texture_object(SolidColor::new(0.73, 0.73, 0.73)),
+        let white = make_material(LambertianDiffuse {
+            texture: make_texture(SolidColor::new(0.73, 0.73, 0.73)),
         });
-        let green = make_material_object(LambertianDiffuse {
-            texture: make_texture_object(SolidColor::new(0.12, 0.45, 0.15)),
+        let green = make_material(LambertianDiffuse {
+            texture: make_texture(SolidColor::new(0.12, 0.45, 0.15)),
         });
-        let light = make_material_object(DiffuseLight {
-            emit: make_texture_object(SolidColor::new(1.0, 1.0, 1.0)),
+        let light = make_material(DiffuseLight {
+            emit: make_texture(SolidColor::new(1.0, 1.0, 1.0)),
             brightness: 15.0,
         });
         let mut world = World::new();
         // generate walls
-        let left: HittableObject = Arc::new(YZRect::new((0.0, 0.0), (555.0, 555.0), 555.0, &green));
-        let right: HittableObject = Arc::new(YZRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &red));
-        let up: HittableObject = Arc::new(XZRect::new((0.0, 0.0), (555.0, 555.0), 555.0, &white));
-        let down: HittableObject = Arc::new(XZRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &white));
-        let behind: HittableObject = Arc::new(XYRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &white));
-        let lamp: HittableObject =
-            Arc::new(XZRect::new((213.0, 227.0), (343.0, 332.0), 554.0, &light));
+        let left = make_hittable(YZRect::new((0.0, 0.0), (555.0, 555.0), 555.0, &green));
+        let right = make_hittable(YZRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &red));
+        let up = make_hittable(XZRect::new((0.0, 0.0), (555.0, 555.0), 555.0, &white));
+        let down = make_hittable(XZRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &white));
+        let behind = make_hittable(XYRect::new((0.0, 0.0), (555.0, 555.0), 0.0, &white));
+        let lamp = make_hittable(XZRect::new((213.0, 227.0), (343.0, 332.0), 554.0, &light));
 
-        let c1: HittableObject = Arc::new(Cube::new(
+        let c1 = make_hittable(Cube::new(
             Vec3::new(265.0, 0.0, 295.0),
             Vec3::new(430.0, 165.0, 460.0),
             &white,
         ));
-        let c2: HittableObject = Arc::new(Cube::new(
+        let c2 = make_hittable(Cube::new(
             Vec3::new(130.0, 0.0, 100.0),
             Vec3::new(295.0, 330.0, 300.0),
             &white,
         ));
-        let rc1: HittableObject = Arc::new(RotateY::new(&c1, -5.0));
-        let rc2: HittableObject = Arc::new(RotateY::new(&c2, 10.0));
-        let black_color: TextureObject = Arc::new(SolidColor::new(0.0, 0.0, 0.0));
-        let white_color: TextureObject = Arc::new(SolidColor::new(1.0, 1.0, 1.0));
-        let mrc1: HittableObject = Arc::new(ConstantMedium::new(&rc1, 0.01, &white_color));
-        let mrc2: HittableObject = Arc::new(ConstantMedium::new(&rc2, 0.01, &black_color));
+        let rc1 = make_hittable(RotateY::new(&c1, -5.0));
+        let rc2 = make_hittable(RotateY::new(&c2, 10.0));
+        let black_color = make_texture(SolidColor::new(0.0, 0.0, 0.0));
+        let white_color = make_texture(SolidColor::new(1.0, 1.0, 1.0));
+        let mrc1 = make_hittable(ConstantMedium::new(&rc1, 0.01, &white_color));
+        let mrc2 = make_hittable(ConstantMedium::new(&rc2, 0.01, &black_color));
         world.add_hittable(&left);
         world.add_hittable(&right);
         world.add_hittable(&down);

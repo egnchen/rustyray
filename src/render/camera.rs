@@ -1,9 +1,9 @@
-use num_traits::FloatConst;
 use rand::distributions::{Distribution, Uniform};
-use rand::{thread_rng, Rng};
+use rand::thread_rng;
 
 use crate::utils::{Ray, Vec3};
 
+#[allow(dead_code)]
 pub struct Camera {
     pub start_corner: Vec3<f64>,
     pub horizontal: Vec3<f64>,
@@ -12,7 +12,7 @@ pub struct Camera {
     lens_radius: f64,
     u: Vec3<f64>,
     v: Vec3<f64>,
-    w: Vec3<f64>,
+    w: Vec3<f64>, // this field is never used, actually
     t_range: Uniform<f64>,
 }
 

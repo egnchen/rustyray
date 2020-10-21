@@ -6,7 +6,7 @@ use rand::{thread_rng, Rng};
 
 use ray_tracer::object::aabb::AABB;
 use ray_tracer::object::texture::SolidColor;
-use ray_tracer::object::{make_material_object, make_sphere_object, LambertianDiffuse};
+use ray_tracer::object::{make_material, make_sphere, LambertianDiffuse};
 use ray_tracer::render::Camera;
 use ray_tracer::utils::Vec3;
 
@@ -30,10 +30,10 @@ fn aabb_hit_benchmark(c: &mut Criterion) {
 
 fn sphere_hit_benchmark(c: &mut Criterion) {
     c.bench_function("Hit on a sphere", |b| {
-        let mat = make_material_object(LambertianDiffuse {
+        let mat = make_material(LambertianDiffuse {
             texture: Arc::new(SolidColor::new(0.5, 0.5, 0.5)),
         });
-        let sphere = make_sphere_object(Vec3::new(0.0, 0.0, 0.0), 1.0, &mat);
+        let sphere = make_sphere(Vec3::new(0.0, 0.0, 0.0), 1.0, &mat);
         let mut rng = thread_rng();
         b.iter(move || sphere.hit(&rng.gen(), 0.001, f64::infinity()));
     });

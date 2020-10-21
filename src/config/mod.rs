@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::object::World;
 use crate::render::Camera;
 
