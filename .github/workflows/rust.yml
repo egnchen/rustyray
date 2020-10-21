@@ -16,7 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: shallwefootball/s3-upload-action@master
     - name: Build
       run: cargo build --verbose
     - name: Run tests
@@ -24,6 +23,7 @@ jobs:
     - name: Run
       run: cargo run --release
     - name: Upload to S3
+      uses: shallwefootball/s3-upload-action@master
       with:
         aws_key_id: ${{ secrets.AWS_KEY_ID }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
