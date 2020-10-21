@@ -11,9 +11,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
@@ -21,11 +19,9 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Run
-      run: cargo run --release
-    - name: Upload to S3
-      uses: shallwefootball/s3-upload-action@master
+      run: cargo run --release -- -c NextWeekFinalScene -p 3
+    - name: Upload output image
+      uses: actions/upload-artifact@v2
       with:
-        aws_key_id: ${{ secrets.AWS_KEY_ID }}
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-        aws_bucket: ${{ secrets.AWS_BUCKET }}
-        source_dir: 'out/out.png'
+        name: out.png
+        path: 'out.png'
